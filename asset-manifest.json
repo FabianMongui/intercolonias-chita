@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/intercolonias-chita/static/css/main.0a9d92a6.css",
-    "main.js": "/intercolonias-chita/static/js/main.39c9ec35.js",
+    "main.js": "/intercolonias-chita/static/js/main.b33345a7.js",
     "static/js/453.3f043523.chunk.js": "/intercolonias-chita/static/js/453.3f043523.chunk.js",
     "index.html": "/intercolonias-chita/index.html",
     "main.0a9d92a6.css.map": "/intercolonias-chita/static/css/main.0a9d92a6.css.map",
-    "main.39c9ec35.js.map": "/intercolonias-chita/static/js/main.39c9ec35.js.map",
+    "main.b33345a7.js.map": "/intercolonias-chita/static/js/main.b33345a7.js.map",
     "453.3f043523.chunk.js.map": "/intercolonias-chita/static/js/453.3f043523.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.0a9d92a6.css",
-    "static/js/main.39c9ec35.js"
+    "static/js/main.b33345a7.js"
   ]
 }

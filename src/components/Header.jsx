@@ -7,7 +7,7 @@ export default function Header({ onLogin }) {
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-              <img src="assets/logoChita.jpg" alt="Logo de fútbol" className="w-8 h-8 object-contain" />
+              <img src={`${process.env.PUBLIC_URL}/assets/logoChita.jpg`} alt="Logo de fútbol" className="w-8 h-8 object-contain" />
             </div>
             <h1 className="text-[#E2F6F8] font-bold">Intercolonias - Chita</h1>
           </div>

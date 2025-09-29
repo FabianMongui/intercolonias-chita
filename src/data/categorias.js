@@ -1,10 +1,11 @@
+const PUBLIC = process.env.PUBLIC_URL;
 export const dataCategorias = {
   "Única": {
     equipos: [
       {
         id: 1,
         nombre: "Chita FC",
-        escudo: "assets/Chita.png",
+        escudo: `${PUBLIC}/assets/Chita.png`,
         jugadores: [
           "#1 Portero - Juan",
           "#5 Defensa - Carlos",
@@ -18,7 +19,7 @@ export const dataCategorias = {
       {
         id: 2,
         nombre: "Tunja FC",
-        escudo: "assets/Tunja.png",
+        escudo: `${PUBLIC}/assets/Tunja.png`,
         jugadores: [
           "#1 Portero - Miguel",
           "#3 Defensa - Andrés",
@@ -32,7 +33,7 @@ export const dataCategorias = {
       {
         id: 3,
         nombre: "Bogotá FC",
-        escudo: "assets/Bogota.png",
+        escudo: `${PUBLIC}/assets/Bogota.png`,
         jugadores: [
           "#1 Portero - Jorge",
           "#4 Defensa - Camilo",
@@ -46,7 +47,7 @@ export const dataCategorias = {
       {
         id: 4,
         nombre: "Llanera FC",
-        escudo: "assets/Llanera.png",
+        escudo: `${PUBLIC}/assets/Llanera.png`,
         jugadores: [
           "#1 Portero - David",
           "#2 Defensa - Sebastián",
@@ -72,14 +73,14 @@ export const dataCategorias = {
     ],
     bracket: {
       final: {
-        equipoA: { nombre: "Chita FC", escudo: "assets/Chita.png" },
-        equipoB: { nombre: "Tunja FC", escudo: "assets/Tunja.png" },
+        equipoA: { nombre: "Chita FC", escudo: `${PUBLIC}/assets/Chita.png` },
+        equipoB: { nombre: "Tunja FC", escudo: `${PUBLIC}/assets/Tunja.png` },
         fecha: "2/11 - 3 pm"
       },
-      campeon: { nombre: "Chita FC", escudo: "assets/Chita.png" },
+      campeon: { nombre: "Chita FC", escudo: `${PUBLIC}/assets/Chita.png` },
       tercerPuesto: [
-        { nombre: "Bogotá FC", escudo: "assets/Bogota.png" },
-        { nombre: "Llanera FC", escudo: "assets/Llanera.png" }
+        { nombre: "Bogotá FC", escudo: `${PUBLIC}/assets/Bogota.png` },
+        { nombre: "Llanera FC", escudo: `${PUBLIC}/assets/Llanera.png` }
       ]
     }
   },
@@ -88,7 +89,7 @@ export const dataCategorias = {
       {
         id: 1,
         nombre: "Chita FC",
-        escudo: "assets/Chita.png",
+        escudo: `${PUBLIC}/assets/Chita.png`,
         jugadores: [
           "#1 Portero - Juan",
           "#5 Defensa - Carlos",
@@ -102,7 +103,7 @@ export const dataCategorias = {
       {
         id: 2,
         nombre: "Tunja FC",
-        escudo: "assets/Tunja.png",
+        escudo: `${PUBLIC}/assets/Tunja.png`,
         jugadores: [
           "#1 Portero - Miguel",
           "#3 Defensa - Andrés",
@@ -116,7 +117,7 @@ export const dataCategorias = {
       {
         id: 3,
         nombre: "Bogotá FC",
-        escudo: "assets/Bogota.png",
+        escudo: `${PUBLIC}/assets/Bogota.png`,
         jugadores: [
           "#1 Portero - Jorge",
           "#4 Defensa - Camilo",
@@ -130,7 +131,7 @@ export const dataCategorias = {
       {
         id: 4,
         nombre: "Llanera FC",
-        escudo: "assets/Llanera.png",
+        escudo: `${PUBLIC}/assets/Llanera.png`,
         jugadores: [
           "#1 Portero - David",
           "#2 Defensa - Sebastián",
@@ -153,14 +154,14 @@ export const dataCategorias = {
     ],
     bracket: {
       final: {
-        equipoA: { nombre: "Tunja FC", escudo: "assets/Tunja.png" },
-        equipoB: { nombre: "Llanera FC", escudo: "assets/Llanera.png" },
+        equipoA: { nombre: "Tunja FC", escudo: `${PUBLIC}/assets/Tunja.png` },
+        equipoB: { nombre: "Llanera FC", escudo: `${PUBLIC}/assets/Llanera.png` },
         fecha: "2/11 - 5 pm"
       },
-      campeon: { nombre: "Tunja FC", escudo: "assets/Tunja.png" },
+      campeon: { nombre: "Tunja FC", escudo: `${PUBLIC}/assets/Tunja.png` },
       tercerPuesto: [
-        { nombre: "Chita FC", escudo: "assets/Chita.png" },
-        { nombre: "Bogotá FC", escudo: "assets/Bogota.png" }
+        { nombre: "Chita FC", escudo: `${PUBLIC}/assets/Chita.png` },
+        { nombre: "Bogotá FC", escudo: `${PUBLIC}/assets/Bogota.png` }
       ]
     }
   },
@@ -169,7 +170,7 @@ export const dataCategorias = {
       {
         id: 1,
         nombre: "Chita FC",
-        escudo: "assets/Chita.png",
+        escudo: `${PUBLIC}/assets/Chita.png`,
         jugadores: [
           "#1 Portera - Ana",
           "#5 Defensa - Laura",
@@ -183,7 +184,7 @@ export const dataCategorias = {
       {
         id: 2,
         nombre: "Tunja FC",
-        escudo: "assets/Tunja.png",
+        escudo: `${PUBLIC}/assets/Tunja.png`,
         jugadores: [
           "#1 Portera - Camila",
           "#3 Defensa - Valeria",
@@ -197,7 +198,7 @@ export const dataCategorias = {
       {
         id: 3,
         nombre: "Bogotá FC",
-        escudo: "assets/Bogota.png",
+        escudo: `${PUBLIC}/assets/Bogota.png`,
         jugadores: [
           "#1 Portera - Natalia",
           "#4 Defensa - Mónica",
@@ -211,7 +212,7 @@ export const dataCategorias = {
       {
         id: 4,
         nombre: "Llanera FC",
-        escudo: "assets/Llanera.png",
+        escudo: `${PUBLIC}/assets/Llanera.png`,
         jugadores: [
           "#1 Portera - Patricia",
           "#2 Defensa - Sandra",
@@ -234,14 +235,14 @@ export const dataCategorias = {
     ],
     bracket: {
       final: {
-        equipoA: { nombre: "Bogotá FC", escudo: "assets/Bogota.png" },
-        equipoB: { nombre: "Chita FC", escudo: "assets/Chita.png" },
+        equipoA: { nombre: "Bogotá FC", escudo: `${PUBLIC}/assets/Bogota.png` },
+        equipoB: { nombre: "Chita FC", escudo: `${PUBLIC}/assets/Chita.png` },
         fecha: "2/11 - 7 pmh"
       },
-      campeon: { nombre: "Bogotá FC", escudo: "assets/Bogota.png" },
+      campeon: { nombre: "Bogotá FC", escudo: `${PUBLIC}/assets/Bogota.png` },
       tercerPuesto: [
-        { nombre: "Tunja FC", escudo: "assets/Tunja.png" },
-        { nombre: "Llanera FC", escudo: "assets/Llanera.png" }
+        { nombre: "Tunja FC", escudo: `${PUBLIC}/assets/Tunja.png` },
+        { nombre: "Llanera FC", escudo: `${PUBLIC}/assets/Llanera.png` }
       ]
     }
   }

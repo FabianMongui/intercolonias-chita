@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventHub - Descubre Eventos Increíbles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+        .gradient-bg { background: linear-gradient(135deg, #918a59 0%, #B8E2A6 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .modal-backdrop { backdrop-filter: blur(8px); }
+        .admin-sidebar { transition: transform 0.3s ease; }
+        .live-indicator { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .btn-main { background-color: #F89D58; color: #fff; }
+        .btn-main:hover { background-color: #B57849; }
+        .text-main { color: #F89D58; }
+        .border-main { border-color: #F89D58; }
+        .bg-main { background-color: #F89D58; }
+        .bg-gradient-main { background: linear-gradient(135deg, #918a59 0%, #B8E2A6 100%); }
+        .modal-title { color: #524C4C; }
+        .modal-btn { background-color: #F89D58; color: #fff; }
+        .modal-btn:hover { background-color: #B57849; }
+        .modal-close { color: #B57849; }
+        .modal-close:hover { color: #F89D58; }
+        .modal-header { background: linear-gradient(135deg, #918a59 0%, #B8E2A6 100%); }
+        .modal-icon { background-color: #B8E2A6; }
+        .admin-nav-btn.active, .admin-nav-btn:hover { background-color: #F89D58; color: #fff; border-right: 2px solid #F89D58; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                        <span class="text-2xl">🎉</span>
+                    </div>
+                    <h1 class="text-2xl font-bold text-[#E2F6F8]">EventHub</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="userWelcome" class="hidden">Bienvenido, Admin</span>
+                    <button id="adminBtn" class="hidden btn-main px-4 py-2 rounded-lg font-medium transition-colors">
+                        Panel Admin
+                    </button>
+                    <button id="loginBtn" class="bg-white text-main px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors border border-main">
+                        Iniciar Sesión
+                    </button>
+                    <button id="logoutBtn" class="hidden bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors">
+                        Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="">
+        <!-- Categoría Tabs -->
+        <div class="flex flex-col items-center bg-white py-4 shadow">
+            <span class="text-lg font-semibold text-[#524C4C] mb-2">Categorías</span>
+            <div class="flex">
+                <button id="adminTabUnica" class="admin-tab-btn px-6 py-2 rounded-t-lg font-semibold text-gray-700 bg-white shadow transition-colors border-b-2 border-[#F89D58]">Única</button>
+                <button id="adminTabVeteranos" class="admin-tab-btn px-6 py-2 rounded-t-lg font-semibold text-gray-700 bg-gray-100 shadow transition-colors ml-2">Veteranos</button>
+                <button id="adminTabMujeres" class="admin-tab-btn px-6 py-2 rounded-t-lg font-semibold text-gray-700 bg-gray-100 shadow transition-colors ml-2">Mujeres</button>
+            </div>
+        </div>
+        <div class="flex h-screen bg-gray-100">
+            <!-- Sidebar con hamburguesa -->
+            <div class="w-64 bg-white shadow-lg admin-sidebar fixed md:static inset-y-0 left-0 z-40 transition-transform transform md:translate-x-0 -translate-x-full md:block" id="adminSidebar">
+                <div class="p-6 border-b flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-gray-800">Panel Administrador</h2>
+                    <!-- Botón cerrar sidebar en mobile -->
+                    <button class="md:hidden text-2xl text-gray-600" id="closeSidebarBtn">&times;</button>
+                </div>
+                <nav class="mt-6">
+                    <button class="admin-nav-btn w-full text-left px-6 py-3 text-gray-700 transition-colors" data-section="matches">
+                        ⚽ Gestión de Partidos
+                    </button>
+                    <button class="admin-nav-btn w-full text-left px-6 py-3 text-gray-700 transition-colors" data-section="teams">
+                        🏆 Gestión de Equipos
+                    </button>
+                    <button class="admin-nav-btn w-full text-left px-6 py-3 text-gray-700 transition-colors" data-section="players">
+                        👤 Gestión de Jugadores
+                    </button>
+                </nav>
+            </div>
+            <!-- Botón hamburguesa en mobile -->
+            <button class="fixed top-4 left-4 z-50 md:hidden bg-white rounded-full shadow-lg p-2" id="openSidebarBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <!-- Main Admin Content -->
+            <div class="flex-1 overflow-y-auto ml-0 md:ml-64">
+                <!-- Matches Section -->
+                <div id="matchesSection" class="admin-section p-8">
+                    <div class="flex justify-between items-center mb-8">
+                        <h3 class="text-2xl font-bold text-gray-800">Gestión de Partidos</h3>
+                        <button id="addMatchBtn" class="btn-main px-6 py-2 rounded-lg hover:bg-[#B57849] transition-colors">
+                            + Nuevo Partido
+                        </button>
+                    </div>
+                    <!-- Live Matches -->
+                    <div class="mb-8">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <span class="w-3 h-3 bg-red-500 rounded-full mr-2 live-indicator"></span>
+                            Partidos en Vivo
+                        </h4>
+                        <div id="liveMatches" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <!-- Live matches will be populated -->
+                        </div>
+                    </div>
+                    <!-- Scheduled Matches -->
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Partidos Programados</h4>
+                        <div id="scheduledMatches" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <!-- Scheduled matches will be populated -->
+                        </div>
+                    </div>
+                    <!-- Finished Matches -->
+                    <div class="mt-8">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Historial de Partidos Finalizados</h4>
+                        <div id="finishedMatches" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <!-- Finished matches will be populated -->
+                        </div>
+                    </div>
+                </div>
+                <!-- Teams Section -->
+                <div id="teamsSection" class="admin-section hidden p-8">
+                    <div class="flex justify-between items-center mb-8">
+                        <h3 class="text-2xl font-bold text-gray-800">Gestión de Equipos</h3>
+                        <button id="addTeamBtn" class="btn-main px-6 py-2 rounded-lg hover:bg-[#B57849] transition-colors">
+                            + Nuevo Equipo
+                        </button>
+                    </div>
+                    <div id="teamsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Teams will be populated -->
+                    </div>
+                </div>
+                <!-- Players Section -->
+                <div id="playersSection" class="admin-section hidden p-8">
+                    <div class="flex justify-between items-center mb-8">
+                        <h3 class="text-2xl font-bold text-gray-800">Gestión de Jugadores</h3>
+                        <button id="addPlayerBtn" class="btn-main px-6 py-2 rounded-lg hover:bg-[#B57849] transition-colors">
+                            + Nuevo Jugador
+                        </button>
+                    </div>
+                    <div class="mb-4">
+                        <select id="teamFilter" class="px-4 py-2 border border-gray-300 rounded-lg">
+                            <option value="">Todos los equipos</option>
+                        </select>
+                    </div>
+                    <div id="playersGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Players will be populated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 transform transition-all relative">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 modal-icon rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-3xl">👋</span>
+                </div>
+                <h3 class="text-2xl font-bold modal-title">¡Bienvenido!</h3>
+                <p class="text-gray-600">Inicia sesión para acceder a todos los eventos</p>
+            </div>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input type="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B8E2A6] focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+                    <input type="password" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B8E2A6] focus:border-transparent">
+                </div>
+                <button type="submit" class="w-full modal-btn py-3 rounded-lg font-medium hover:bg-[#B57849] transition-colors">
+                    Iniciar Sesión
+                </button>
+            </form>
+            <button id="closeLogin" class="absolute top-4 right-4 modal-close">
+                <span class="text-2xl">×</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Event Details Modal -->
+    <div id="eventModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto relative">
+            <div id="eventDetails">
+                <!-- Event details will be populated by JavaScript -->
+            </div>
+            <button id="closeEvent" class="absolute top-4 right-4 modal-close bg-black bg-opacity-50 rounded-full w-10 h-10 flex items-center justify-center">
+                <span class="text-xl">×</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Match Modal -->
+    <div id="matchModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl max-w-md w-full mx-4 relative">
+            <div class="p-6">
+                <h3 id="matchModalTitle" class="text-xl font-bold modal-title mb-4">Nuevo Partido</h3>
+                <form id="matchForm" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Equipo Local</label>
+                            <select id="homeTeam" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                <option value="">Seleccionar equipo</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Equipo Visitante</label>
+                            <select id="awayTeam" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                <option value="">Seleccionar equipo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha</label>
+                            <input type="date" id="matchDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Hora</label>
+                            <input type="time" id="matchTime" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Estadio</label>
+                        <input type="text" id="matchStadium" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div class="flex space-x-4 pt-4">
+                        <button type="submit" class="flex-1 modal-btn py-2 rounded-lg hover:bg-[#B57849] transition-colors">
+                            Guardar
+                        </button>
+                        <button type="button" id="closeMatchModal" class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400 transition-colors">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Modal -->
+    <div id="teamModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl max-w-md w-full mx-4 relative">
+            <div class="p-6">
+                <h3 id="teamModalTitle" class="text-xl font-bold modal-title mb-4">Nuevo Equipo</h3>
+                <form id="teamForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Equipo</label>
+                        <input type="text" id="teamName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Ciudad</label>
+                        <input type="text" id="teamCity" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Entrenador</label>
+                        <input type="text" id="teamCoach" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Año de Fundación</label>
+                        <input type="number" id="teamYear" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div class="flex space-x-4 pt-4">
+                        <button type="submit" class="flex-1 modal-btn py-2 rounded-lg hover:bg-[#B57849] transition-colors">
+                            Guardar
+                        </button>
+                        <button type="button" id="closeTeamModal" class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400 transition-colors">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Modal -->
+    <div id="playerModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl max-w-md w-full mx-4 relative">
+            <div class="p-6">
+                <h3 id="playerModalTitle" class="text-xl font-bold modal-title mb-4">Nuevo Jugador</h3>
+                <form id="playerForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nombre</label>
+                        <input type="text" id="playerName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Número</label>
+                            <input type="number" id="playerNumber" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Posición</label>
+                            <select id="playerPosition" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                <option value="">Seleccionar</option>
+                                <option value="Portero">Portero</option>
+                                <option value="Defensa">Defensa</option>
+                                <option value="Centrocampista">Centrocampista</option>
+                                <option value="Delantero">Delantero</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Equipo</label>
+                        <select id="playerTeam" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                            <option value="">Seleccionar equipo</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Edad</label>
+                            <input type="number" id="playerAge" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nacionalidad</label>
+                            <input type="text" id="playerNationality" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        </div>
+                    </div>
+                    <div class="flex space-x-4 pt-4">
+                        <button type="submit" class="flex-1 modal-btn py-2 rounded-lg hover:bg-[#B57849] transition-colors">
+                            Guardar
+                        </button>
+                        <button type="button" id="closePlayerModal" class="flex-1 bg-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-400 transition-colors">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categorías Admin -->
+    <!-- <div class="flex flex-col items-center bg-white py-4 shadow">
+        <span class="text-lg font-semibold text-[#524C4C] mb-2">Categorías</span>
+        <div class="flex">
+            <button id="adminTabUnica" class="admin-tab-btn px-6 py-2 rounded-t-lg font-semibold text-gray-700 bg-white shadow transition-colors border-b-2 border-[#F89D58]">Única</button>
+            <button id="adminTabVeteranos" class="admin-tab-btn px-6 py-2 rounded-t-lg font-semibold text-gray-700 bg-gray-100 shadow transition-colors ml-2">Veteranos</button>
+            <button id="adminTabMujeres" class="admin-tab-btn px-6 py-2 rounded-t-lg font-semibold text-gray-700 bg-gray-100 shadow transition-colors ml-2">Mujeres</button>
+        </div>
+    </div> -->
+
+    <script>
+        // Sample events data
+        const events = [
+            {
+                id: 1,
+                title: "Festival de Música Electrónica",
+                date: "15 Dic 2024",
+                time: "20:00",
+                location: "Parque Central",
+                price: "$45",
+                image: "🎵",
+                category: "Música",
+                description: "Una noche épica con los mejores DJs internacionales. Ven y disfruta de música electrónica de alta calidad en un ambiente increíble.",
+                attendees: 1250,
+                organizer: "MusicEvents Pro"
+            },
+            {
+                id: 2,
+                title: "Conferencia de Tecnología",
+                date: "22 Dic 2024",
+                time: "09:00",
+                location: "Centro de Convenciones",
+                price: "$80",
+                image: "💻",
+                category: "Tecnología",
+                description: "Descubre las últimas tendencias en tecnología con expertos de la industria. Networking, charlas inspiradoras y mucho más.",
+                attendees: 500,
+                organizer: "TechHub"
+            },
+            {
+                id: 3,
+                title: "Exposición de Arte Moderno",
+                date: "28 Dic 2024",
+                time: "10:00",
+                location: "Museo de Arte",
+                price: "$25",
+                image: "🎨",
+                category: "Arte",
+                description: "Una colección única de arte moderno de artistas locales e internacionales. Una experiencia visual inolvidable.",
+                attendees: 300,
+                organizer: "Galería Moderna"
+            },
+            {
+                id: 4,
+                title: "Torneo de Gaming",
+                date: "30 Dic 2024",
+                time: "14:00",
+                location: "Arena Gaming",
+                price: "$30",
+                image: "🎮",
+                category: "Gaming",
+                description: "Competencia épica de videojuegos con premios increíbles. Participa o ven a apoyar a tu equipo favorito.",
+                attendees: 800,
+                organizer: "GameZone"
+            },
+            {
+                id: 5,
+                title: "Festival Gastronómico",
+                date: "5 Ene 2025",
+                time: "12:00",
+                location: "Plaza de la Cultura",
+                price: "$35",
+                image: "🍽️",
+                category: "Gastronomía",
+                description: "Degusta los mejores platos de chefs reconocidos. Una experiencia culinaria que no puedes perderte.",
+                attendees: 600,
+                organizer: "Foodies United"
+            },
+            {
+                id: 6,
+                title: "Concierto de Jazz",
+                date: "10 Ene 2025",
+                time: "19:30",
+                location: "Teatro Principal",
+                price: "$55",
+                image: "🎷",
+                category: "Música",
+                description: "Una velada íntima con los mejores músicos de jazz de la región. Ambiente elegante y música excepcional.",
+                attendees: 200,
+                organizer: "Jazz Society"
+            }
+        ];
+
+        // Sports data
+        let teams = [
+            { id: 1, name: "Real Madrid", city: "Madrid", coach: "Carlo Ancelotti", year: 1902, logo: "👑" },
+            { id: 2, name: "FC Barcelona", city: "Barcelona", coach: "Xavi Hernández", year: 1899, logo: "🔵" },
+            { id: 3, name: "Atlético Madrid", city: "Madrid", coach: "Diego Simeone", year: 1903, logo: "🔴" },
+            { id: 4, name: "Valencia CF", city: "Valencia", coach: "Rubén Baraja", year: 1919, logo: "🦇" }
+        ];
+
+        let players = [
+            { id: 1, name: "Karim Benzema", number: 9, position: "Delantero", teamId: 1, age: 35, nationality: "Francia" },
+            { id: 2, name: "Luka Modrić", number: 10, position: "Centrocampista", teamId: 1, age: 38, nationality: "Croacia" },
+            { id: 3, name: "Robert Lewandowski", number: 9, position: "Delantero", teamId: 2, age: 35, nationality: "Polonia" },
+            { id: 4, name: "Pedri González", number: 8, position: "Centrocampista", teamId: 2, age: 21, nationality: "España" },
+            { id: 5, name: "Antoine Griezmann", number: 7, position: "Delantero", teamId: 3, age: 32, nationality: "Francia" },
+            { id: 6, name: "Koke Resurrección", number: 6, position: "Centrocampista", teamId: 3, age: 31, nationality: "España" }
+        ];
+
+        let matches = [
+            {
+                id: 1,
+                homeTeam: 1,
+                awayTeam: 2,
+                date: "2024-12-20",
+                time: "21:00",
+                stadium: "Santiago Bernabéu",
+                status: "live",
+                homeScore: 2,
+                awayScore: 1,
+                minute: 78
+            },
+            {
+                id: 2,
+                homeTeam: 3,
+                awayTeam: 4,
+                date: "2024-12-21",
+                time: "19:00",
+                stadium: "Wanda Metropolitano",
+                status: "scheduled",
+                homeScore: 0,
+                awayScore: 0,
+                minute: 0
+            }
+        ];
+
+        let isLoggedIn = false;
+        let currentEditingMatch = null;
+        let currentEditingTeam = null;
+        let currentEditingPlayer = null;
+        let categoriaAdminActiva = "Única";
+
+        // Ejemplo de estructura de dataCategorias (debes tener esto arriba en tu script)
+        const dataCategorias = {
+            "Única": {
+                equipos: [
+                    { id: 1, nombre: "Real Madrid", ciudad: "Madrid", entrenador: "Carlo Ancelotti", año: 1902, escudo: "👑", jugadores: ["#9 - Karim Benzema Delantero", "#10 - Luka Modrić Centrocampista"] },
+                    { id: 2, nombre: "FC Barcelona", ciudad: "Barcelona", entrenador: "Xavi Hernández", año: 1899, escudo: "🔵", jugadores: ["#9 - Robert Lewandowski Delantero", "#8 - Pedri González Centrocampista"] }
+                ],
+                partidosEnVivo: [
+                    { id: 1, homeTeam: 1, awayTeam: 2, date: "2024-12-20", time: "21:00", stadium: "Santiago Bernabéu", status: "live", homeScore: 2, awayScore: 1, minute: 78 }
+                ],
+                proximosPartidos: [
+                    { id: 2, homeTeam: 2, awayTeam: 1, date: "2024-12-25", time: "19:00", stadium: "Camp Nou", status: "scheduled", homeScore: 0, awayScore: 0, minute: 0 }
+                ],
+                partidosFinalizados: []
+            },
+            "Veteranos": {
+                equipos: [
+                    { id: 3, nombre: "Veteranos Madrid", ciudad: "Madrid", entrenador: "Juan Pérez", año: 1980, escudo: "🧓", jugadores: ["#7 - Antonio López Delantero", "#5 - Luis García Defensa"] },
+                    { id: 4, nombre: "Veteranos Barcelona", ciudad: "Barcelona", entrenador: "Miguel Torres", año: 1982, escudo: "🧓", jugadores: ["#10 - Pedro Sánchez Centrocampista"] }
+                ],
+                partidosEnVivo: [
+                    { id: 3, homeTeam: 3, awayTeam: 4, date: "2025-01-10", time: "18:00", stadium: "Estadio Viejo", status: "live", homeScore: 1, awayScore: 0, minute: 55 }
+                ],
+                proximosPartidos: [
+                    { id: 4, homeTeam: 4, awayTeam: 3, date: "2025-01-15", time: "20:00", stadium: "Campo Barcelona", status: "scheduled", homeScore: 0, awayScore: 0, minute: 0 }
+                ],
+                partidosFinalizados: []
+            },
+            "Mujeres": {
+                equipos: [
+                    { id: 5, nombre: "Madrid Femenino", ciudad: "Madrid", entrenador: "Ana Gómez", año: 2005, escudo: "👩‍🎤", jugadores: ["#11 - Laura Martínez Delantero", "#8 - Sofía López Centrocampista"] },
+                    { id: 6, nombre: "Barcelona Femenino", ciudad: "Barcelona", entrenador: "Lucía Torres", año: 2007, escudo: "👩‍🎤", jugadores: ["#9 - Marta Ruiz Delantero"] }
+                ],
+                partidosEnVivo: [],
+                proximosPartidos: [
+                    { id: 5, homeTeam: 5, awayTeam: 6, date: "2025-02-01", time: "17:00", stadium: "Estadio Femenino", status: "scheduled", homeScore: 0, awayScore: 0, minute: 0 }
+                ],
+                partidosFinalizados: []
+            }
+        };
+
+        // Variables globales para renderizado
+        let adminTeams = [];
+        let adminPlayers = [];
+        let adminMatches = [];
+        let adminFinishedMatches = [];
+
+        // Renderiza partidos (ahora incluye finalizados)
+        function renderMatches() {
+            const liveContainer = document.getElementById('liveMatches');
+            const scheduledContainer = document.getElementById('scheduledMatches');
+            const finishedContainer = document.getElementById('finishedMatches');
+
+            const datos = dataCategorias[categoriaAdminActiva];
+            const liveMatches = datos.partidosEnVivo;
+            const scheduledMatches = datos.proximosPartidos;
+            const finishedMatches = datos.partidosFinalizados;
+
+            liveContainer.innerHTML = liveMatches.map(match => {
+                const homeTeam = adminTeams.find(t => t.id === match.homeTeam);
+                const awayTeam = adminTeams.find(t => t.id === match.awayTeam);
+                return `
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">EN VIVO</span>
+                            <span class="text-lg font-bold">${match.minute}'</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-center">
+                                <div class="text-2xl mb-2">${homeTeam ? homeTeam.logo : ""}</div>
+                                <div class="font-medium">${homeTeam ? homeTeam.name : ""}</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-purple-600">${match.homeScore} - ${match.awayScore}</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl mb-2">${awayTeam ? awayTeam.logo : ""}</div>
+                                <div class="font-medium">${awayTeam ? awayTeam.name : ""}</div>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex space-x-2">
+                            <button onclick="updateScore(${match.id}, 'home')" class="flex-1 bg-green-500 text-white py-2 rounded text-sm hover:bg-green-600">
+                                Gol Local
+                            </button>
+                            <button onclick="updateScore(${match.id}, 'away')" class="flex-1 bg-blue-500 text-white py-2 rounded text-sm hover:bg-blue-600">
+                                Gol Visitante
+                            </button>
+                            <button onclick="endMatch(${match.id})" class="flex-1 bg-red-500 text-white py-2 rounded text-sm hover:bg-red-600">
+                                Finalizar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            scheduledContainer.innerHTML = scheduledMatches.map(match => {
+                const homeTeam = adminTeams.find(t => t.id === match.homeTeam);
+                const awayTeam = adminTeams.find(t => t.id === match.awayTeam);
+                return `
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">PROGRAMADO</span>
+                            <div class="flex space-x-2">
+                                <button onclick="editMatch(${match.id})" class="text-blue-600 hover:text-blue-800">✏️</button>
+                                <button onclick="deleteMatch(${match.id})" class="text-red-600 hover:text-red-800">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-center">
+                                <div class="text-2xl mb-2">${homeTeam ? homeTeam.logo : ""}</div>
+                                <div class="font-medium">${homeTeam ? homeTeam.name : ""}</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-lg font-medium text-gray-600">VS</div>
+                                <div class="text-sm text-gray-500">${match.date}</div>
+                                <div class="text-sm text-gray-500">${match.time}</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl mb-2">${awayTeam ? awayTeam.logo : ""}</div>
+                                <div class="font-medium">${awayTeam ? awayTeam.name : ""}</div>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <div class="text-sm text-gray-600">📍 ${match.stadium}</div>
+                            <button onclick="startMatch(${match.id})" class="mt-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                                Iniciar Partido
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Renderiza partidos finalizados
+            if (finishedContainer) {
+                finishedContainer.innerHTML = finishedMatches.map(match => {
+                    const homeTeam = adminTeams.find(t => t.id === match.homeTeam);
+                    const awayTeam = adminTeams.find(t => t.id === match.awayTeam);
+                    return `
+                        <div class="bg-white rounded-lg shadow-md p-6 opacity-80">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="bg-gray-300 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">FINALIZADO</span>
+                                <span class="text-lg font-bold">90'</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="text-center">
+                                    <div class="text-2xl mb-2">${homeTeam ? homeTeam.logo : ""}</div>
+                                    <div class="font-medium">${homeTeam ? homeTeam.name : ""}</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-3xl font-bold text-purple-600">${match.homeScore} - ${match.awayScore}</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl mb-2">${awayTeam ? awayTeam.logo : ""}</div>
+                                    <div class="font-medium">${awayTeam ? awayTeam.name : ""}</div>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-center text-sm text-gray-600">📍 ${match.stadium} | ${match.date} ${match.time}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function renderTeams() {
+            const grid = document.getElementById('teamsGrid');
+            grid.innerHTML = adminTeams.map(team => `
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="text-4xl">${team.logo}</div>
+                        <div class="flex space-x-2">
+                            <button onclick="editTeam(${team.id})" class="text-blue-600 hover:text-blue-800">✏️</button>
+                            <button onclick="deleteTeam(${team.id})" class="text-red-600 hover:text-red-800">🗑️</button>
+                        </div>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2">${team.name}</h4>
+                    <div class="space-y-1 text-sm text-gray-600">
+                        <div>📍 ${team.city}</div>
+                        <div>👨‍💼 ${team.coach}</div>
+                        <div>📅 Fundado en ${team.year}</div>
+                        <div>👥 ${adminPlayers.filter(p => p.teamId === team.id).length} jugadores</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderPlayers() {
+            const grid = document.getElementById('playersGrid');
+            const teamFilter = document.getElementById('teamFilter').value;
+            let filteredPlayers = adminPlayers;
+            if (teamFilter) {
+                filteredPlayers = adminPlayers.filter(p => p.teamId == teamFilter);
+            }
+            grid.innerHTML = filteredPlayers.map(player => {
+                const team = adminTeams.find(t => t.id === player.teamId);
+                return `
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center font-bold text-purple-600">
+                                    ${player.number}
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-800">${player.name}</h4>
+                                    <div class="text-sm text-gray-600">${player.position}</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="editPlayer('${player.id}')" class="text-blue-600 hover:text-blue-800">✏️</button>
+                                <button onclick="deletePlayer('${player.id}')" class="text-red-600 hover:text-red-800">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="space-y-1 text-sm text-gray-600">
+                            <div>🏆 ${team ? team.name : 'Sin equipo'}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Corrige los selects para que usen adminTeams
+        function populateTeamSelects() {
+            const selects = ['homeTeam', 'awayTeam', 'playerTeam', 'teamFilter'];
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    const currentValue = select.value;
+                    select.innerHTML = selectId === 'teamFilter' ? '<option value="">Todos los equipos</option>' : '<option value="">Seleccionar equipo</option>';
+                    adminTeams.forEach(team => {
+                        select.innerHTML += `<option value="${team.id}">${team.name}</option>`;
+                    });
+                    select.value = currentValue;
+                }
+            });
+        }
+
+        // Match functions
+        function updateScore(matchId, team) {
+            const datos = dataCategorias[categoriaAdminActiva];
+            const match = datos.partidosEnVivo.find(m => m.id === matchId);
+            if (match) {
+                if (team === 'home') {
+                    match.homeScore++;
+                } else {
+                    match.awayScore++;
+                }
+                match.minute = Math.min(match.minute + Math.floor(Math.random() * 5) + 1, 90);
+                setCategoriaAdmin(categoriaAdminActiva);
+            }
+        }
+
+        // Función para finalizar partido y moverlo al historial
+        function endMatch(matchId) {
+            const datos = dataCategorias[categoriaAdminActiva];
+            const idx = datos.partidosEnVivo.findIndex(m => m.id === matchId);
+            if (idx !== -1) {
+                const match = datos.partidosEnVivo[idx];
+                match.status = 'finished';
+                match.minute = 90;
+                datos.partidosEnVivo.splice(idx, 1);
+                datos.partidosFinalizados.push(match);
+                setCategoriaAdmin(categoriaAdminActiva);
+            }
+        }
+
+        // Función para iniciar partido (mueve de programados a en vivo)
+        function startMatch(matchId) {
+            const datos = dataCategorias[categoriaAdminActiva];
+            const idx = datos.proximosPartidos.findIndex(m => m.id === matchId);
+            if (idx !== -1) {
+                const match = datos.proximosPartidos[idx];
+                match.status = 'live';
+                match.minute = 1;
+                datos.proximosPartidos.splice(idx, 1);
+                datos.partidosEnVivo.push(match);
+                setCategoriaAdmin(categoriaAdminActiva);
+            }
+        }
+
+        // Adaptación de setCategoriaAdmin para cargar los datos filtrados
+        function setCategoriaAdmin(categoria) {
+            categoriaAdminActiva = categoria;
+            const datos = dataCategorias[categoriaAdminActiva];
+            adminTeams = datos.equipos.map(eq => ({
+                id: eq.id,
+                name: eq.nombre,
+                city: eq.ciudad || "",
+                coach: eq.entrenador || "",
+                year: eq.año || "",
+                logo: eq.escudo
+            }));
+            adminPlayers = [];
+            datos.equipos.forEach(eq => {
+                eq.jugadores.forEach((jug, idx) => {
+                    const partes = jug.split(" - ");
+                    const numero = partes[0].replace("#", "");
+                    const resto = partes[1] ? partes[1].split(" ") : [];
+                    adminPlayers.push({
+                        id: `${eq.id}-${idx}`,
+                        name: resto.slice(0, -1).join(" "),
+                        number: numero,
+                        position: resto[resto.length - 1] || "",
+                        teamId: eq.id,
+                        age: "",
+                        nationality: ""
+                    });
+                });
+            });
+            adminMatches = [].concat(datos.partidosEnVivo, datos.proximosPartidos);
+            adminFinishedMatches = datos.partidosFinalizados;
+            populateTeamSelects();
+            renderMatches();
+            renderTeams();
+            renderPlayers();
+        }
+
+        // Event listeners para los tabs
+        document.getElementById("adminTabUnica").addEventListener("click", function() {
+          setCategoriaAdmin("Única");
+          activarAdminTab(this);
+        });
+        document.getElementById("adminTabVeteranos").addEventListener("click", function() {
+          setCategoriaAdmin("Veteranos");
+          activarAdminTab(this);
+        });
+        document.getElementById("adminTabMujeres").addEventListener("click", function() {
+          setCategoriaAdmin("Mujeres");
+          activarAdminTab(this);
+        });
+
+        function activarAdminTab(tab) {
+          document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+            btn.classList.remove('border-[#F89D58]', 'border-b-2', 'bg-white');
+            btn.classList.add('bg-gray-100');
+          });
+          tab.classList.add('border-[#F89D58]', 'border-b-2', 'bg-white');
+          tab.classList.remove('bg-gray-100');
+        }
+
+        // Event listeners
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            document.getElementById('loginModal').classList.remove('hidden');
+        });
+
+        document.getElementById('adminBtn').addEventListener('click', () => {
+            document.getElementById('mainContent').classList.add('hidden');
+            document.getElementById('adminPanel').classList.remove('hidden');
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            isLoggedIn = false;
+            document.getElementById('loginBtn').classList.remove('hidden');
+            document.getElementById('adminBtn').classList.add('hidden');
+            document.getElementById('logoutBtn').classList.add('hidden');
+            document.getElementById('userWelcome').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+        });
+
+        // Admin navigation
+        document.querySelectorAll('.admin-nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active nav
+                document.querySelectorAll('.admin-nav-btn').forEach(b => {
+                    b.classList.remove('border-r-2', 'border-purple-600', 'bg-purple-50', 'text-purple-600');
+                });
+                btn.classList.add('border-r-2', 'border-purple-600', 'bg-purple-50', 'text-purple-600');
+
+                // Show section
+                document.querySelectorAll('.admin-section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                document.getElementById(btn.dataset.section + 'Section').classList.remove('hidden');
+
+                // Oculta el sidebar en mobile al seleccionar una opción
+                if (window.innerWidth < 768) {
+                    sidebar.classList.add('-translate-x-full');
+                    // Oculta el botón hamburguesa mientras el menú está abierto
+                    openSidebarBtn.style.display = 'block';
+                }
+            });
+        });
+
+        // Modal controls
+        document.getElementById('closeLogin').addEventListener('click', () => {
+            document.getElementById('loginModal').classList.add('hidden');
+        });
+
+        document.getElementById('closeEvent').addEventListener('click', () => {
+            document.getElementById('eventModal').classList.add('hidden');
+        });
+
+        document.getElementById('closeMatchModal').addEventListener('click', () => {
+            document.getElementById('matchModal').classList.add('hidden');
+            currentEditingMatch = null;
+        });
+
+        document.getElementById('closeTeamModal').addEventListener('click', () => {
+            document.getElementById('teamModal').classList.add('hidden');
+            currentEditingTeam = null;
+        });
+
+        document.getElementById('closePlayerModal').addEventListener('click', () => {
+            document.getElementById('playerModal').classList.add('hidden');
+            currentEditingPlayer = null;
+        });
+
+        // Add buttons
+        document.getElementById('addMatchBtn').addEventListener('click', () => {
+            currentEditingMatch = null;
+            document.getElementById('matchModalTitle').textContent = 'Nuevo Partido';
+            document.getElementById('matchForm').reset();
+            document.getElementById('matchModal').classList.remove('hidden');
+        });
+
+        document.getElementById('addTeamBtn').addEventListener('click', () => {
+            currentEditingTeam = null;
+            document.getElementById('teamModalTitle').textContent = 'Nuevo Equipo';
+            document.getElementById('teamForm').reset();
+            document.getElementById('teamModal').classList.remove('hidden');
+        });
+
+        document.getElementById('addPlayerBtn').addEventListener('click', () => {
+            currentEditingPlayer = null;
+            document.getElementById('playerModalTitle').textContent = 'Nuevo Jugador';
+            document.getElementById('playerForm').reset();
+            document.getElementById('playerModal').classList.remove('hidden');
+        });
+
+        // Forms
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            isLoggedIn = true;
+            document.getElementById('loginBtn').classList.add('hidden');
+            document.getElementById('adminBtn').classList.remove('hidden');
+            document.getElementById('logoutBtn').classList.remove('hidden');
+            document.getElementById('userWelcome').classList.remove('hidden');
+            document.getElementById('loginModal').classList.add('hidden');
+        });
+
+        // Variables para edición
+// Eliminado: let currentEditingMatch = null;
+// Eliminado: let currentEditingTeam = null;
+// Eliminado: let currentEditingPlayer = null;
+
+// --- FORMULARIOS ADAPTADOS ---
+
+// Agregar/editar equipo
+document.getElementById('teamForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const datos = dataCategorias[categoriaAdminActiva];
+    if (currentEditingTeam) {
+        // Editar equipo
+        const team = datos.equipos.find(t => t.id === currentEditingTeam);
+        team.nombre = document.getElementById('teamName').value;
+        team.ciudad = document.getElementById('teamCity').value;
+        team.entrenador = document.getElementById('teamCoach').value;
+        team.año = parseInt(document.getElementById('teamYear').value);
+    } else {
+        // Nuevo equipo
+        const newId = Math.max(0, ...datos.equipos.map(t => t.id)) + 1;
+        datos.equipos.push({
+            id: newId,
+            nombre: document.getElementById('teamName').value,
+            ciudad: document.getElementById('teamCity').value,
+            entrenador: document.getElementById('teamCoach').value,
+            año: parseInt(document.getElementById('teamYear').value),
+            escudo: "⚽",
+            jugadores: []
+        });
+    }
+    setCategoriaAdmin(categoriaAdminActiva);
+    document.getElementById('teamModal').classList.add('hidden');
+    currentEditingTeam = null;
+});
+
+// Agregar/editar jugador
+document.getElementById('playerForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const datos = dataCategorias[categoriaAdminActiva];
+    const teamId = parseInt(document.getElementById('playerTeam').value);
+    const team = datos.equipos.find(t => t.id === teamId);
+    const jugadorStr = `#${document.getElementById('playerNumber').value} - ${document.getElementById('playerName').value} ${document.getElementById('playerPosition').value}`;
+    if (currentEditingPlayer) {
+        // Editar jugador
+        const [teamIdEdit, idxEdit] = currentEditingPlayer.split("-");
+        const teamEdit = datos.equipos.find(t => t.id == teamIdEdit);
+        if (teamEdit) teamEdit.jugadores[idxEdit] = jugadorStr;
+    } else {
+        // Nuevo jugador
+        team.jugadores.push(jugadorStr);
+    }
+    setCategoriaAdmin(categoriaAdminActiva);
+    document.getElementById('playerModal').classList.add('hidden');
+    currentEditingPlayer = null;
+});
+
+// Agregar/editar partido
+document.getElementById('matchForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const datos = dataCategorias[categoriaAdminActiva];
+    const matchObj = {
+        id: Math.max(0, ...datos.partidosEnVivo.concat(datos.proximosPartidos).map(m => m.id)) + 1,
+        homeTeam: parseInt(document.getElementById('homeTeam').value),
+        awayTeam: parseInt(document.getElementById('awayTeam').value),
+        date: document.getElementById('matchDate').value,
+        time: document.getElementById('matchTime').value,
+        stadium: document.getElementById('matchStadium').value,
+        status: 'scheduled',
+        homeScore: 0,
+        awayScore: 0,
+        minute: 0
+    };
+    if (currentEditingMatch) {
+        // Editar partido
+        let match = datos.partidosEnVivo.find(m => m.id === currentEditingMatch) || datos.proximosPartidos.find(m => m.id === currentEditingMatch);
+        if (match) {
+            match.homeTeam = matchObj.homeTeam;
+            match.awayTeam = matchObj.awayTeam;
+            match.date = matchObj.date;
+            match.time = matchObj.time;
+            match.stadium = matchObj.stadium;
+        }
+    } else {
+        // Nuevo partido
+        datos.proximosPartidos.push(matchObj);
+    }
+    setCategoriaAdmin(categoriaAdminActiva);
+    document.getElementById('matchModal').classList.add('hidden');
+    currentEditingMatch = null;
+});
+
+// --- FUNCIONES DE EDICIÓN Y BORRADO ADAPTADAS ---
+
+function editTeam(teamId) {
+    currentEditingTeam = teamId;
+    const datos = dataCategorias[categoriaAdminActiva];
+    const team = datos.equipos.find(t => t.id === teamId);
+    if (team) {
+        document.getElementById('teamModalTitle').textContent = 'Editar Equipo';
+        document.getElementById('teamName').value = team.nombre;
+        document.getElementById('teamCity').value = team.ciudad;
+        document.getElementById('teamCoach').value = team.entrenador;
+        document.getElementById('teamYear').value = team.año;
+        document.getElementById('teamModal').classList.remove('hidden');
+    }
+}
+
+function deleteTeam(teamId) {
+    if (confirm('¿Estás seguro de que quieres eliminar este equipo?')) {
+        const datos = dataCategorias[categoriaAdminActiva];
+        datos.equipos = datos.equipos.filter(t => t.id !== teamId);
+        setCategoriaAdmin(categoriaAdminActiva);
+    }
+}
+
+function editPlayer(playerId) {
+    currentEditingPlayer = playerId;
+    const datos = dataCategorias[categoriaAdminActiva];
+    const [teamId, idx] = playerId.split("-");
+    const team = datos.equipos.find(t => t.id == teamId);
+    if (team) {
+        const jugador = team.jugadores[idx];
+        const partes = jugador.split(" - ");
+        const numero = partes[0].replace("#", "");
+        const resto = partes[1] ? partes[1].split(" ") : [];
+        document.getElementById('playerModalTitle').textContent = 'Editar Jugador';
+        document.getElementById('playerName').value = resto.slice(0, -1).join(" ");
+        document.getElementById('playerNumber').value = numero;
+        document.getElementById('playerPosition').value = resto[resto.length - 1] || "";
+        document.getElementById('playerTeam').value = teamId;
+        document.getElementById('playerModal').classList.remove('hidden');
+    }
+}
+
+function deletePlayer(playerId) {
+    if (confirm('¿Estás seguro de que quieres eliminar este jugador?')) {
+        const datos = dataCategorias[categoriaAdminActiva];
+        const [teamId, idx] = playerId.split("-");
+        const team = datos.equipos.find(t => t.id == teamId);
+        if (team) {
+            team.jugadores.splice(idx, 1);
+            setCategoriaAdmin(categoriaAdminActiva);
+        }
+    }
+}
+
+function editMatch(matchId) {
+    currentEditingMatch = matchId;
+    const datos = dataCategorias[categoriaAdminActiva];
+    let match = datos.partidosEnVivo.find(m => m.id === matchId) || datos.proximosPartidos.find(m => m.id === matchId);
+    if (match) {
+        document.getElementById('matchModalTitle').textContent = 'Editar Partido';
+        document.getElementById('homeTeam').value = match.homeTeam;
+        document.getElementById('awayTeam').value = match.awayTeam;
+        document.getElementById('matchDate').value = match.date;
+        document.getElementById('matchTime').value = match.time;
+        document.getElementById('matchStadium').value = match.stadium;
+        document.getElementById('matchModal').classList.remove('hidden');
+    }
+}
+
+function deleteMatch(matchId) {
+    if (confirm('¿Estás seguro de que quieres eliminar este partido?')) {
+        const datos = dataCategorias[categoriaAdminActiva];
+        datos.partidosEnVivo = datos.partidosEnVivo.filter(m => m.id !== matchId);
+        datos.proximosPartidos = datos.proximosPartidos.filter(m => m.id !== matchId);
+        setCategoriaAdmin(categoriaAdminActiva);
+    }
+}
+
+// Hamburguesa sidebar mobile
+const sidebar = document.getElementById('adminSidebar');
+const openSidebarBtn = document.getElementById('openSidebarBtn');
+const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+
+function openSidebar() {
+    sidebar.classList.remove('-translate-x-full');
+}
+function closeSidebar() {
+    sidebar.classList.add('-translate-x-full');
+}
+openSidebarBtn.addEventListener('click', openSidebar);
+closeSidebarBtn.addEventListener('click', closeSidebar);
+
+// Hamburguesa sidebar mobile (agrega esto después de la definición de sidebar y botones)
+document.querySelectorAll('.admin-nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Update active nav
+        document.querySelectorAll('.admin-nav-btn').forEach(b => {
+            b.classList.remove('border-r-2', 'border-purple-600', 'bg-purple-50', 'text-purple-600');
+        });
+        btn.classList.add('border-r-2', 'border-purple-600', 'bg-purple-50', 'text-purple-600');
+
+        // Show section
+        document.querySelectorAll('.admin-section').forEach(section => {
+            section.classList.add('hidden');
+        });
+        document.getElementById(btn.dataset.section + 'Section').classList.remove('hidden');
+
+        // Oculta el sidebar en mobile al seleccionar una opción
+        if (window.innerWidth < 768) {
+            sidebar.classList.add('-translate-x-full');
+            // Oculta el botón hamburguesa mientras el menú está abierto
+            openSidebarBtn.style.display = 'block';
+        }
+    });
+});
+
+// Cuando abres el sidebar, oculta el botón hamburguesa
+openSidebarBtn.addEventListener('click', () => {
+    sidebar.classList.remove('-translate-x-full');
+    openSidebarBtn.style.display = 'none';
+});
+
+// Cuando cierras el sidebar, muestra el botón hamburguesa
+closeSidebarBtn.addEventListener('click', () => {
+    sidebar.classList.add('-translate-x-full');
+    openSidebarBtn.style.display = 'block';
+});
+
+// También al hacer click fuera del sidebar en mobile
+document.addEventListener('click', function(e) {
+    if (window.innerWidth < 768) {
+        if (!sidebar.contains(e.target) && !openSidebarBtn.contains(e.target)) {
+            sidebar.classList.add('-translate-x-full');
+            openSidebarBtn.style.display = 'block';
+        }
+    }
+});
+
+// Al cambiar a desktop, muestra sidebar y hamburguesa correctamente
+window.addEventListener('resize', function() {
+    if (window.innerWidth >= 768) {
+        sidebar.classList.remove('-translate-x-full');
+        openSidebarBtn.style.display = 'none';
+    } else {
+        sidebar.classList.add('-translate-x-full');
+        openSidebarBtn.style.display = 'block';
+    }
+});
+
+// Inicializa sidebar y hamburguesa ocultos/visibles según pantalla
+if (window.innerWidth < 768) {
+    sidebar.classList.add('-translate-x-full');
+    openSidebarBtn.style.display = 'block';
+} else {
+    openSidebarBtn.style.display = 'none';
+}
+
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98691bb940ca0ce3',t:'MTc1OTEyNDAzNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

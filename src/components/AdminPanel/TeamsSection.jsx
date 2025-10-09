@@ -9,10 +9,9 @@ const sampleTeams = [
 ];
 
 export default function TeamsSection({ category, openModal, onEdit, onDelete, categorias }) {
-  // Si ya usas categorias[category], puedes cambiar sampleTeams por eso
-  const datos = categorias ? categorias[category] : { equipos: sampleTeams };
-  const equipos = datos.equipos;
-  console.log("Equipos en categoría:", equipos);
+  const categoriaSeleccionada = categorias?.find(c => c.nombre === category);
+  const equipos = categoriaSeleccionada?.equipos || [];
+  console.log("🚀 ~ TeamsSection ~ equipos:", equipos)
 
   return (
     <section>
@@ -28,27 +27,20 @@ export default function TeamsSection({ category, openModal, onEdit, onDelete, ca
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {equipos.length === 0 ? (
-          <p className="text-gray-500">No hay equipos registrados aún.</p>
+          <p className="text-gray-500">No hay equipos registrados aún para esta categoría.</p>
         ) : (
           equipos.map((team) => (
             <div key={team.id} className="bg-white rounded-lg shadow-md p-6 text-center">
-              {/* Header de la card */}
               <div className="flex justify-between items-start mb-4">
-                <img src={`${process.env.PUBLIC_URL}/assets/Chita.png`} alt="Chita" className="w-12 h-auto" />
+                <img src={`${team.escudo}`} alt="Chita" className="w-12 h-auto" />
                 <div className="flex space-x-2">
                   <button onClick={() => onEdit(team)} className="text-blue-600 hover:text-blue-800">✏️</button>
                   <button onClick={() => onDelete(team)} className="text-red-600 hover:text-red-800">🗑️</button>
                 </div>
               </div>
-
-              {/* Nombre */}
               <h4 className="text-lg font-bold text-gray-800 mb-2">{team.nombre}</h4>
-
-              {/* Info */}
               <div className="space-y-1 text-m text-gray-600">
-                <div>📍 {team.ciudad}</div>
-                <div>👨‍💼 {team.entrenador}</div>
-                <div>👥 {team.jugadores?.length || 0} jugadores</div>
+                <div>👨‍💼 {team.representante}</div>
               </div>
             </div>
           ))

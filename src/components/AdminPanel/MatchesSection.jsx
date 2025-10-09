@@ -7,7 +7,8 @@ export default function MatchesSection({
   onGolLocal,
   onGolVisitante,
   onFinalizar,
-  onIniciar
+  onIniciar,
+  categoriasYEquipos
 }) {
   const datos = dataCategorias[category];
 

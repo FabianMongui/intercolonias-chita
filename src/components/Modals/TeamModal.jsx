@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 
-export default function TeamModal({ open, onClose, team, onSave }) {
+export default function TeamModal({ category, open, onClose, team, onSave }) {
   const [form, setForm] = useState({
     nombre: "",
-    ciudad: "",
+    categoria_id: "",
     representante: "",
-    año: "",
     escudo: "",
   });
 
@@ -13,9 +12,8 @@ export default function TeamModal({ open, onClose, team, onSave }) {
     if (team) {
       setForm({ ...form, ...team });
     } else {
-      setForm({ nombre: "", ciudad: "", representante: "", año: "", escudo: "" });
+      setForm({ nombre: "", categoria_id: "", representante: "", escudo: "" });
     }
-    // eslint-disable-next-line
   }, [team, open]);
 
   if (!open) return null;
@@ -27,7 +25,7 @@ export default function TeamModal({ open, onClose, team, onSave }) {
 
   const handleSubmit = e => {
     e.preventDefault();
-    console.log("Submit del modal", form);
+    form.categoria_id = category == "Única" ? 1 : category == "Veteranos" ? 2 : category == "Mujeres" ? 3 : 1;
     onSave(form);
     onClose();
   };
@@ -44,16 +42,6 @@ export default function TeamModal({ open, onClose, team, onSave }) {
             <input
               name="nombre"
               value={form.nombre}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Ciudad</label>
-            <input
-              name="ciudad"
-              value={form.ciudad}
               onChange={handleChange}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"

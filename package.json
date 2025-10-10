@@ -2,7 +2,7 @@
   "name": "intercolonias-chita",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://FabianMongui.github.io/intercolonias-chita",
+  "homepage": ".",
   "dependencies": {
     "@supabase/supabase-js": "^2.74.0",
     "@testing-library/dom": "^10.4.1",

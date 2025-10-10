@@ -6,13 +6,14 @@ export default function TeamModal({ category, open, onClose, team, onSave }) {
     categoria_id: "",
     representante: "",
     escudo: "",
+    grupo: ""
   });
 
   useEffect(() => {
     if (team) {
       setForm({ ...form, ...team });
     } else {
-      setForm({ nombre: "", categoria_id: "", representante: "", escudo: "" });
+      setForm({ nombre: "", categoria_id: "", representante: "", escudo: "", grupo: ""});
     }
   }, [team, open]);
 
@@ -52,6 +53,16 @@ export default function TeamModal({ category, open, onClose, team, onSave }) {
             <input
               name="representante"
               value={form.representante}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Grupo</label>
+            <input
+              name="grupo"
+              value={form.grupo}
               onChange={handleChange}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg"

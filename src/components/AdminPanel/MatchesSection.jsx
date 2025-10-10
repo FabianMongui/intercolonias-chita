@@ -11,11 +11,25 @@ export default function MatchesSection({
   categoriasYEquipos
 }) {
   const datos = dataCategorias[category];
+  const categorias = categoriasYEquipos?.find(c => c.nombre === category);
+  const equipos = categorias?.equipos || [];
+  const partidos = categorias?.partidos || [];
+  const partidosEnVivo = partidos.filter(p => p.estado === "Partido en vivo");
+  const partidosProgramados = partidos.filter(p => p.estado === "Programado");
+  console.log("🚀 ~ MatchesSection ~ equipos:", categorias)
+  if (!categorias) {
+    return <p className="text-gray-500">Cargando datos de la categoría...</p>; // o null, o un loader
+  }
+
+  const getNombreEquipo = (id) => {
+    const equipo = equipos.find(e => e.id === id);
+    return equipo ? equipo.nombre : `Equipo (${id})`;
+  };
 
   return (
     <section>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Partidos ({category})</h2>
+        <h2 className="text-xl font-bold">Partidos</h2>
         <button
           className="bg-[#F89D58] text-white px-3 py-1 rounded hover:bg-[#B57849] transition-colors"
           onClick={openModal}
@@ -31,10 +45,10 @@ export default function MatchesSection({
           Partidos en Vivo
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {datos.partidosEnVivo.length === 0 ? (
+          {partidosEnVivo.length === 0 ? (
             <p className="text-gray-500">No hay partidos en vivo.</p>
           ) : (
-            datos.partidosEnVivo.map((match, idx) => (
+            partidosEnVivo.map((match, idx) => (
               <div key={idx} className="bg-white rounded-lg shadow-md p-6">
                 <div className="flex justify-between items-center mb-4">
                   <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">EN VIVO</span>
@@ -42,13 +56,13 @@ export default function MatchesSection({
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="text-center">
-                    <div className="font-medium">{match.equipoA}</div>
+                    <div className="font-medium">{getNombreEquipo(match.equipoa_id)}</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-purple-600">{match.golesA} - {match.golesB}</div>
+                    <div className="text-3xl font-bold text-purple-600">{match.golesa} - {match.golesb}</div>
                   </div>
                   <div className="text-center">
-                    <div className="font-medium">{match.equipoB}</div>
+                    <div className="font-medium">{getNombreEquipo(match.equipob_id)}</div>
                   </div>
                 </div>
                 <div className="mt-4 flex space-x-2">
@@ -81,21 +95,21 @@ export default function MatchesSection({
       <div>
         <h4 className="text-lg font-semibold mb-2">Partidos Programados</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {datos.proximosPartidos.length === 0 ? (
+          {partidosProgramados.length === 0 ? (
             <p className="text-gray-500">No hay partidos programados.</p>
           ) : (
-            datos.proximosPartidos.map((match, idx) => (
+            partidosProgramados.map((match, idx) => (
               <div key={idx} className="bg-white rounded-lg shadow-md p-6">
                 <div className="flex justify-between items-center mb-4">
                   <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">PROGRAMADO</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="font-medium">{match.equipoA}</div>
+                  <div className="font-medium">{getNombreEquipo(match.equipoa_id)}</div>
                   <div className="text-lg font-medium text-gray-600">VS</div>
-                  <div className="font-medium">{match.equipoB}</div>
+                  <div className="font-medium">{getNombreEquipo(match.equipob_id)}</div>
                 </div>
                 <div className="mt-2 text-sm text-gray-600">
-                  {match.hora} | {match.estado}
+                  {match.hora.slice(0, 5)} | {match.estado}
                 </div>
                 <div className="mt-4 text-center">
                   <button

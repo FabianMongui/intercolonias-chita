@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import CategoryTabs from "./CategoryTabs";
 import MatchesSection from "./MatchesSection";
@@ -9,11 +9,17 @@ import TeamModal from "../Modals/TeamModal";
 import PlayerModal from "../Modals/PlayerModal";
 import { dataCategorias as initialCategorias } from "../../data/categorias";
 import Swal from 'sweetalert2';
+import { createClient } from "@supabase/supabase-js";
 
 export default function AdminPanel() {
   const [activeSection, setActiveSection] = useState("matches");
   const [activeCategory, setActiveCategory] = useState("Única");
   const [categorias, setCategorias] = useState(initialCategorias);
+  const SUPABASE_URL = "https://kewjmzqiuggpdodnzbvp.supabase.co";
+  const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtld2ptenFpdWdncGRvZG56YnZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3OTE0NTgsImV4cCI6MjA3NTM2NzQ1OH0.UYU0XM64ciJD8NM4lggSYaQ7zP1tJwgnR7ZyeCIg-XQ"; // reemplaza por tu valor real
+  const AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtld2ptenFpdWdncGRvZG56YnZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3OTE0NTgsImV4cCI6MjA3NTM2NzQ1OH0.UYU0XM64ciJD8NM4lggSYaQ7zP1tJwgnR7ZyeCIg-XQ";
+  const supabase = createClient(SUPABASE_URL, API_KEY);
+  const [categoriasYEquipos, setCategoriasYEquipos] = useState([]);
 
   // Modales y edición
   const [matchModalOpen, setMatchModalOpen] = useState(false);
@@ -23,6 +29,20 @@ export default function AdminPanel() {
   const [editingTeam, setEditingTeam] = useState(null);
   const [editingPlayer, setEditingPlayer] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const data = await getEquipos();
+      const dataCategoriasYEquipos = await fetchCategoriasConRelaciones();
+      setCategoriasYEquipos(dataCategoriasYEquipos);
+      const existeCategoria = dataCategoriasYEquipos.some(c => c.nombre === dataCategoriasYEquipos.nombre);
+    if (existeCategoria) {
+      setActiveCategory(dataCategoriasYEquipos.nombre);
+    } else if (dataCategoriasYEquipos.length > 0) {
+      setActiveCategory(dataCategoriasYEquipos[0].nombre);
+    }
+    })();
+  }, []);
 
   // --- CRUD MATCH ---
   const handleEditMatch = (match) => {
@@ -75,10 +95,23 @@ export default function AdminPanel() {
     setTeamModalOpen(true);
   };
 
-  const handleDeleteTeam = (team) => {
+  const recargarDatos = async () => {
+    const categoriaActual = activeCategory;
+    const dataActualizada = await fetchCategoriasConRelaciones();
+    setCategoriasYEquipos(dataActualizada);
+    setCategorias(dataActualizada);
+    const existeCategoria = dataActualizada.some(c => c.nombre === categoriaActual);
+    if (existeCategoria) {
+      setActiveCategory(categoriaActual);
+    } else if (dataActualizada.length > 0) {
+      setActiveCategory(dataActualizada[0].nombre);
+    }
+  };
+
+  const deleteEquipo = async (equipo) => {
     Swal.fire({
-      title: '¿Estás seguro?',
-      text: `¿Quieres eliminar el equipo "${team.nombre}"? Esta acción no se puede deshacer.`,
+      title: `¿Quieres eliminar el equipo "${equipo.nombre}"?`,
+      text: '',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
@@ -89,14 +122,11 @@ export default function AdminPanel() {
         confirmButton: 'bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700',
         cancelButton: 'bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400',
       },
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        setCategorias((prev) => {
-          const cat = { ...prev[activeCategory] };
-          cat.equipos = cat.equipos.filter((t) => t !== team);
-          return { ...prev, [activeCategory]: cat };
-        });
-
+        const { error } = await supabase.from("equipos").delete().eq("id", equipo.id);
+        if (error) console.error("Error eliminando equipo:", error);
+        recargarDatos();
         Swal.fire({
           title: 'Eliminado',
           text: 'El equipo ha sido eliminado correctamente.',
@@ -108,24 +138,21 @@ export default function AdminPanel() {
     });
   };
 
-  const handleSaveTeam = (data) => {
-    console.log("handleSaveTeam called with data:", data);
-    setCategorias((prev) => {
-      const cat = { ...prev[activeCategory] };
-      if (editingTeam) {
-        cat.equipos = cat.equipos.map((t) => (t === editingTeam ? { ...editingTeam, ...data } : t));
-      } else {
-        const nextId = cat.equipos.length + 1;
-        if (!cat.equipos.some(t => t.nombre === data.nombre)) {
-          cat.equipos.push({ ...data, id: nextId, jugadores: [] });
-        } else {
-          console.warn("⚠️ Equipo duplicado no agregado:", data.nombre);
-        }
-      }
-      console.log("Nuevo estado cat.equipos:", cat.equipos);
-      return { ...prev, [activeCategory]: cat };
-    });
-    setEditingTeam(null);
+  const saveEquipo = async (equipoData, editingEquipoId = null) => {
+    if (editingEquipoId) {
+      // actualizar
+      const { error } = await supabase
+        .from("equipos")
+        .update(equipoData)
+        .eq("id", editingEquipoId);
+      if (error) console.error("Error actualizando equipo:", error);
+    } else {
+      // insertar nuevo
+      const payload = { ...equipoData};
+      const { error } = await supabase.from("equipos").insert(payload);
+      if (error) console.error("Error insertando equipo:", error);
+    }
+    recargarDatos();
   };
 
   // --- CRUD PLAYER ---
@@ -230,7 +257,85 @@ export default function AdminPanel() {
   };
 
   // Extrae jugadores de la categoría activa y los transforma en objetos completos
-  const equipos = categorias[activeCategory].equipos;
+  //const equipos = categorias[activeCategory].equipos;
+  const equipos = [
+      {
+        id: 1,
+        nombre: "Chita FC",
+        escudo: `/assets/Chita.png`,
+        jugadores: [
+          "#1 Portero - Juan",
+          "#5 Defensa - Carlos",
+          "#8 Mediocampo - Luis",
+          "#10 Delantero - Pedro",
+          "#2 Defensa - Diego",
+          "#6 Mediocampo - Andrés",
+          "#11 Delantero - Manuel"
+        ]
+      }
+    ];
+
+  const getEquipos = async () => {
+    try {
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/equipos?select=*`, {
+        method: "GET",
+        headers: {
+          apikey: API_KEY,
+          Authorization: `${AUTH_TOKEN}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("🚀 ~ getEquipos ~ data:", data)
+      return data;
+    } catch (error) {
+      console.error("Error obteniendo los equipos:", error);
+      return null;
+    }
+  };
+
+  const fetchCategoriasConRelaciones = async () => {
+    const { data, error } = await supabase
+      .from("categorias")
+      .select(`
+        id,
+        nombre,
+        equipos (
+          id,
+          nombre,
+          representante,
+          escudo,
+          grupo
+        ),
+        partidos (
+          id,
+          equipoa_id,
+          equipob_id,
+          golesa,
+          golesb,
+          minuto,
+          estado,
+          fecha,
+          hora
+        )
+      `)
+      .order("id", { ascending: true, foreignTable: "equipos" });
+
+    if (error) {
+      console.error("Error cargando categorías:", error);
+      return [];
+    }
+
+    // ✅ Ya no hacemos ningún setState aquí
+    console.log("🚀 ~ fetchCategoriasConRelaciones ~ data:", data);
+    return data || [];
+  };
+
+  //getEquipos();
 
   const jugadores = equipos.flatMap((eq, teamIdx) =>
     eq.jugadores.map((jug, idx) => {
@@ -285,6 +390,7 @@ export default function AdminPanel() {
             onFinalizar={handleFinalizar}
             onIniciar={handleIniciar}
             categorias={categorias}
+            categoriasYEquipos={categoriasYEquipos} 
           />
         )}
         {activeSection === "teams" && (
@@ -295,8 +401,10 @@ export default function AdminPanel() {
               setTeamModalOpen(true);
             }}
             onEdit={handleEditTeam}
-            onDelete={handleDeleteTeam}
-            categorias={categorias}
+            /* onDelete={handleDeleteTeam} */
+            onDelete={(team) => deleteEquipo(team)}
+            categorias={categoriasYEquipos}
+            /* equiposSupa={equiposSupa} */
           />
         )}
         {activeSection === "players" && (
@@ -321,10 +429,13 @@ export default function AdminPanel() {
         onSave={handleSaveMatch}
       />
       <TeamModal
+        category={activeCategory}
         open={teamModalOpen}
         onClose={() => setTeamModalOpen(false)}
         team={editingTeam}
-        onSave={handleSaveTeam}
+        onSave={(data) => {
+          saveEquipo(data, editingTeam?.id);
+        }}        
       />
       <PlayerModal
         open={playerModalOpen}

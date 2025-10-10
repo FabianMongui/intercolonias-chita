@@ -11,7 +11,6 @@ const sampleTeams = [
 export default function TeamsSection({ category, openModal, onEdit, onDelete, categorias }) {
   const categoriaSeleccionada = categorias?.find(c => c.nombre === category);
   const equipos = categoriaSeleccionada?.equipos || [];
-  console.log("🚀 ~ TeamsSection ~ equipos:", equipos)
 
   return (
     <section>
@@ -41,6 +40,7 @@ export default function TeamsSection({ category, openModal, onEdit, onDelete, ca
               <h4 className="text-lg font-bold text-gray-800 mb-2">{team.nombre}</h4>
               <div className="space-y-1 text-m text-gray-600">
                 <div>👨‍💼 {team.representante}</div>
+                <div>📅 {team.grupo ? "Grupo " + team.grupo : "No tiene grupo"}</div>
               </div>
             </div>
           ))

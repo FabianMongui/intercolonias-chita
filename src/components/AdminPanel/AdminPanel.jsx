@@ -20,9 +20,10 @@ export default function AdminPanel() {
   const AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtld2ptenFpdWdncGRvZG56YnZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3OTE0NTgsImV4cCI6MjA3NTM2NzQ1OH0.UYU0XM64ciJD8NM4lggSYaQ7zP1tJwgnR7ZyeCIg-XQ";
   const supabase = createClient(SUPABASE_URL, API_KEY);
   const [categoriasYEquipos, setCategoriasYEquipos] = useState([]);
+  const [equiposPartidos, setEquiposPartidos] = useState([]);
 
   // Modales y edición
-  const [matchModalOpen, setMatchModalOpen] = useState(false);
+  //const [matchModalOpen, setMatchModalOpen] = useState(false);
   const [teamModalOpen, setTeamModalOpen] = useState(false);
   const [playerModalOpen, setPlayerModalOpen] = useState(false);
   const [editingMatch, setEditingMatch] = useState(null);
@@ -32,7 +33,8 @@ export default function AdminPanel() {
 
   useEffect(() => {
     (async () => {
-      const data = await getEquipos();
+      const equiposPartidos = await getEquipos();
+      setEquiposPartidos(equiposPartidos);
       const dataCategoriasYEquipos = await fetchCategoriasConRelaciones();
       setCategoriasYEquipos(dataCategoriasYEquipos);
       const existeCategoria = dataCategoriasYEquipos.some(c => c.nombre === dataCategoriasYEquipos.nombre);
@@ -47,7 +49,6 @@ export default function AdminPanel() {
   // --- CRUD MATCH ---
   const handleEditMatch = (match) => {
     setEditingMatch(match);
-    setMatchModalOpen(true);
   };
   const handleDeleteMatch = (match, type) => {
     setCategorias((prev) => {
@@ -61,32 +62,6 @@ export default function AdminPanel() {
       }
       return { ...prev, [activeCategory]: cat };
     });
-  };
-  const handleSaveMatch = (data) => {
-    setCategorias((prev) => {
-      const cat = { ...prev[activeCategory] };
-      if (editingMatch) {
-        // Editar
-        if (data.estado === "En Vivo") {
-          cat.partidosEnVivo = cat.partidosEnVivo.map((m) => (m === editingMatch ? data : m));
-        } else if (data.estado === "Programado") {
-          cat.proximosPartidos = cat.proximosPartidos.map((m) => (m === editingMatch ? data : m));
-        } else if (data.estado === "Finalizado") {
-          cat.resultadosPasados = cat.resultadosPasados.map((m) => (m === editingMatch ? data : m));
-        }
-      } else {
-        // Agregar
-        if (data.estado === "En Vivo") {
-          cat.partidosEnVivo.push(data);
-        } else if (data.estado === "Programado") {
-          cat.proximosPartidos.push(data);
-        } else if (data.estado === "Finalizado") {
-          cat.resultadosPasados.push(data);
-        }
-      }
-      return { ...prev, [activeCategory]: cat };
-    });
-    setEditingMatch(null);
   };
 
   // --- CRUD TEAM ---
@@ -211,53 +186,6 @@ export default function AdminPanel() {
     setEditingPlayer(null);
   };
 
-  // --- Goles y estado del partido ---
-  const handleGolLocal = (match) => {
-    setCategorias((prev) => {
-      const cat = { ...prev[activeCategory] };
-      cat.partidosEnVivo = cat.partidosEnVivo.map((m) =>
-        m === match ? { ...m, golesA: m.golesA + 1, minuto: Math.min(m.minuto + 5, 90) } : m
-      );
-      return { ...prev, [activeCategory]: cat };
-    });
-  };
-  const handleGolVisitante = (match) => {
-    setCategorias((prev) => {
-      const cat = { ...prev[activeCategory] };
-      cat.partidosEnVivo = cat.partidosEnVivo.map((m) =>
-        m === match ? { ...m, golesB: m.golesB + 1, minuto: Math.min(m.minuto + 5, 90) } : m
-      );
-      return { ...prev, [activeCategory]: cat };
-    });
-  };
-  const handleFinalizar = (match) => {
-    setCategorias((prev) => {
-      const cat = { ...prev[activeCategory] };
-      cat.partidosEnVivo = cat.partidosEnVivo.filter((m) => m !== match);
-      cat.resultadosPasados = [
-        ...cat.resultadosPasados,
-        {
-          resultado: `${match.equipoA} ${match.golesA} - ${match.golesB} ${match.equipoB}`,
-          fecha: new Date().toLocaleDateString(),
-        },
-      ];
-      return { ...prev, [activeCategory]: cat };
-    });
-  };
-  const handleIniciar = (match) => {
-    setCategorias((prev) => {
-      const cat = { ...prev[activeCategory] };
-      cat.proximosPartidos = cat.proximosPartidos.filter((m) => m !== match);
-      cat.partidosEnVivo = [
-        ...cat.partidosEnVivo,
-        { ...match, golesA: 0, golesB: 0, minuto: 1 },
-      ];
-      return { ...prev, [activeCategory]: cat };
-    });
-  };
-
-  // Extrae jugadores de la categoría activa y los transforma en objetos completos
-  //const equipos = categorias[activeCategory].equipos;
   const equipos = [
       {
         id: 1,
@@ -288,7 +216,6 @@ export default function AdminPanel() {
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
-
       const data = await response.json();
       console.log("🚀 ~ getEquipos ~ data:", data)
       return data;
@@ -329,36 +256,28 @@ export default function AdminPanel() {
       console.error("Error cargando categorías:", error);
       return [];
     }
-
-    // ✅ Ya no hacemos ningún setState aquí
-    console.log("🚀 ~ fetchCategoriasConRelaciones ~ data:", data);
     return data || [];
   };
 
-  //getEquipos();
-
   const jugadores = equipos.flatMap((eq, teamIdx) =>
     eq.jugadores.map((jug, idx) => {
-      // Ejemplo: "#1 Portero - Juan"
       const partes = jug.split(" - ");
       const numeroPos = partes[0].split(" ");
       const numero = numeroPos[0].replace("#", "");
       const posicion = numeroPos.slice(1).join(" ");
       const nombre = partes[1] || "";
-      // Si tienes edad y nacionalidad, agrégalas aquí (puedes pedirlas en el modal)
       return {
         id: `${eq.id}-${idx}`,
         name: nombre,
         number: numero,
         position: posicion,
         teamId: eq.id,
-        age: "", // Completa en el modal
-        nationality: "" // Completa en el modal
+        age: "",
+        nationality: ""
       };
     })
   );
 
-  // --- Render ---
   return (
     <div className="flex min-h-screen">
       <button
@@ -381,16 +300,12 @@ export default function AdminPanel() {
             category={activeCategory}
             openModal={() => {
               setEditingMatch(null);
-              setMatchModalOpen(true);
             }}
             onEdit={handleEditMatch}
-            onDelete={handleDeleteMatch}
-            onGolLocal={handleGolLocal}
-            onGolVisitante={handleGolVisitante}
-            onFinalizar={handleFinalizar}
-            onIniciar={handleIniciar}
-            categorias={categorias}
-            categoriasYEquipos={categoriasYEquipos} 
+            onDelete={handleDeleteMatch} 
+            categoriasYEquipos={categoriasYEquipos}
+            supabase={supabase}
+            recargarDatos={recargarDatos}
           />
         )}
         {activeSection === "teams" && (
@@ -401,10 +316,8 @@ export default function AdminPanel() {
               setTeamModalOpen(true);
             }}
             onEdit={handleEditTeam}
-            /* onDelete={handleDeleteTeam} */
             onDelete={(team) => deleteEquipo(team)}
             categorias={categoriasYEquipos}
-            /* equiposSupa={equiposSupa} */
           />
         )}
         {activeSection === "players" && (
@@ -422,12 +335,6 @@ export default function AdminPanel() {
           />
         )}
       </main>
-      <MatchModal
-        open={matchModalOpen}
-        onClose={() => setMatchModalOpen(false)}
-        match={editingMatch}
-        onSave={handleSaveMatch}
-      />
       <TeamModal
         category={activeCategory}
         open={teamModalOpen}

@@ -250,7 +250,8 @@ export default function AdminPanel() {
           hora
         )
       `)
-      .order("id", { ascending: true, foreignTable: "equipos" });
+      .order("id", { ascending: true, foreignTable: "equipos" })
+      .order("hora", { ascending: false, foreignTable: "partidos" });
 
     if (error) {
       console.error("Error cargando categorías:", error);

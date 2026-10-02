@@ -1,0 +1,282 @@
+/*
+ * Intercolonias Chita — tokens de diseño (ESPECIFICACION §5).
+ * Fuente de verdad visual: design-system/intercolonias-chita/MASTER.md
+ * Regla: los componentes NUNCA usan hex sueltos; solo clases de estos tokens.
+ * Modo oscuro: fase 5 (no hay bloque .dark a propósito).
+ */
+@import 'tailwindcss';
+/* Utilidades de entrada/salida (CSS puro) para hojas inferiores y diálogos (§5.3). */
+@import 'tw-animate-css';
+
+/* Tipografía self-hosted, solo subset latino (cubre tildes y ñ), font-display: swap. */
+@import '@fontsource/bebas-neue/latin-400.css';
+
+@font-face {
+  font-family: 'Source Sans 3 Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url('@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* `dark:` queda atado a una clase que nunca se aplica (evita que siga prefers-color-scheme). */
+@custom-variant dark (&:is(.dark *));
+
+/* Variantes de estado de Radix que usan los componentes de shadcn (copiadas de shadcn/tailwind.css). */
+@custom-variant data-open {
+  &:where([data-state='open']),
+  &:where([data-open]:not([data-open='false'])) {
+    @slot;
+  }
+}
+@custom-variant data-closed {
+  &:where([data-state='closed']),
+  &:where([data-closed]:not([data-closed='false'])) {
+    @slot;
+  }
+}
+@custom-variant data-checked {
+  &:where([data-state='checked']),
+  &:where([data-checked]:not([data-checked='false'])) {
+    @slot;
+  }
+}
+@custom-variant data-unchecked {
+  &:where([data-state='unchecked']),
+  &:where([data-unchecked]:not([data-unchecked='false'])) {
+    @slot;
+  }
+}
+@custom-variant data-selected {
+  &:where([data-selected='true']) {
+    @slot;
+  }
+}
+@custom-variant data-disabled {
+  &:where([data-disabled='true']),
+  &:where([data-disabled]:not([data-disabled='false'])) {
+    @slot;
+  }
+}
+@custom-variant data-active {
+  &:where([data-state='active']),
+  &:where([data-active]:not([data-active='false'])) {
+    @slot;
+  }
+}
+
+/* ── Paleta cruda del escudo (§5.1) ─────────────────────────────────────── */
+@theme {
+  --color-verde: #018d36; /* blanco encima 4.3:1 → solo texto grande */
+  --color-verde-oscuro: #016b29; /* blanco encima 6.7:1 → botones, links, foco */
+  --color-verde-claro: #3ca93e; /* acentos secundarios, gráficos */
+  --color-amarillo: #fcc000; /* acento/CTA → siempre texto cafe encima */
+  --color-dorado: #d49f37; /* decorativo: llaves, final, trofeo */
+  --color-azul: #0070ac; /* secundario institucional, blanco 5.4:1 */
+  --color-cielo: #87cbf2; /* decorativo */
+  --color-crema: #f6e5db; /* superficies cálidas, cafe encima 13.4:1 */
+  --color-cafe: #3b130b; /* texto sobre amarillo/crema */
+  --color-en-vivo: #dc2626; /* SOLO EN VIVO y errores, blanco 4.8:1 */
+
+  /* Tipografía */
+  --font-sans: 'Source Sans 3 Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Bebas Neue', 'Arial Narrow', ui-sans-serif, sans-serif;
+
+  /* Movimiento (§5.3): 150–300 ms, solo color/opacidad/transform */
+  --default-transition-duration: 200ms;
+  --default-transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  --ease-salida: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Animaciones permitidas */
+  --animate-pulso-en-vivo: pulso-en-vivo 2s ease-in-out infinite;
+  --animate-pop-marcador: pop-marcador 300ms cubic-bezier(0.2, 0, 0, 1);
+
+  @keyframes pulso-en-vivo {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
+  }
+  @keyframes pop-marcador {
+    0% {
+      transform: scale(1);
+    }
+    40% {
+      transform: scale(1.18);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+}
+
+/* ── Tokens semánticos (contrato de shadcn + propios) ───────────────────── */
+:root {
+  --radius: 0.5rem;
+
+  /* Duraciones permitidas (usar con duration-(--duracion-*)) */
+  --duracion-rapida: 150ms;
+  --duracion-base: 200ms;
+  --duracion-lenta: 300ms;
+
+  --background: #f9fafb; /* gris muy claro */
+  --foreground: #1f2937;
+  --card: #ffffff;
+  --card-foreground: #1f2937;
+  --popover: #ffffff;
+  --popover-foreground: #1f2937;
+
+  /* Botones con texto blanco: verde-oscuro (6.7:1), nunca verde */
+  --primary: var(--color-verde-oscuro);
+  --primary-foreground: #ffffff;
+  --primary-hover: color-mix(in oklab, var(--color-verde-oscuro) 85%, black);
+
+  /* Marca: verde del escudo para fondos grandes (header). Blanco encima solo texto grande. */
+  --brand: var(--color-verde);
+  --brand-foreground: #ffffff;
+
+  --secondary: #f3f4f6;
+  --secondary-foreground: #1f2937;
+  --secondary-hover: color-mix(in oklab, var(--secondary), var(--foreground) 6%);
+
+  --muted: #f3f4f6;
+  --muted-foreground: #4b5563; /* 7.6:1 sobre blanco, 6.9:1 sobre muted */
+
+  /* Acento/CTA: amarillo del escudo, siempre texto cafe (9.9:1) */
+  --accent: var(--color-amarillo);
+  --accent-foreground: var(--color-cafe);
+  --accent-hover: color-mix(in oklab, var(--color-amarillo) 88%, black);
+
+  --destructive: var(--color-en-vivo);
+  --destructive-foreground: #ffffff;
+  --destructive-hover: color-mix(in oklab, var(--destructive) 85%, black);
+
+  --live: var(--color-en-vivo);
+  --live-foreground: #ffffff;
+
+  --info: var(--color-azul);
+  --info-foreground: #ffffff;
+
+  --surface: #ffffff;
+  --surface-foreground: #1f2937;
+  --surface-warm: var(--color-crema);
+  --surface-warm-foreground: var(--color-cafe);
+
+  --gold: var(--color-dorado);
+  --gold-foreground: var(--color-cafe);
+
+  --border: #e5e7eb;
+  --input: #6b7280; /* 4.8:1, cumple 3:1 de componentes no textuales */
+  --ring: var(--color-verde-oscuro);
+
+  --chart-1: var(--color-verde);
+  --chart-2: var(--color-amarillo);
+  --chart-3: var(--color-azul);
+  --chart-4: var(--color-dorado);
+  --chart-5: var(--color-verde-claro);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-hover: var(--accent-hover);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-hover: var(--destructive-hover);
+  --color-live: var(--live);
+  --color-live-foreground: var(--live-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-surface-warm: var(--surface-warm);
+  --color-surface-warm-foreground: var(--surface-warm-foreground);
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --font-heading: var(--font-display);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+/* Cifras de marcador: Bebas Neue + cifras tabulares (ancho fijo, sin saltos). */
+@utility marcador {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring;
+  }
+  html {
+    @apply font-sans;
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    line-height: 1.1;
+  }
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* §5.3: respetar prefers-reduced-motion en toda la app. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

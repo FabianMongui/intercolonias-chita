@@ -22,3 +22,6 @@ yarn-error.log*
 !.env.example
 .firebase/
 ui-ux-pro-max.tar.gz
+
+# Configuración local del preview de Claude
+.claude/launch.json

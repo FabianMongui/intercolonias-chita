@@ -11,7 +11,24 @@
   </head>
   <body>
     <noscript>Necesitas habilitar JavaScript para ver esta aplicación.</noscript>
-    <div id="root"></div>
+    <!-- Esqueleto estático: se ve mientras baja el JS en datos móviles. React lo reemplaza al montar. -->
+    <div id="root">
+      <header class="bg-brand text-brand-foreground">
+        <div class="mx-auto flex max-w-screen-lg items-center gap-3 px-4 py-2">
+          <div class="flex min-h-11 items-center gap-3">
+            <img src="/assets/Chita.png" alt="" width="40" height="40" class="size-10 shrink-0 object-contain" />
+            <span class="font-display text-3xl leading-none">Intercolonias Chita</span>
+          </div>
+        </div>
+      </header>
+      <main class="mx-auto max-w-screen-lg px-4 pt-6" aria-busy="true" aria-label="Cargando">
+        <div class="flex flex-col gap-3">
+          <div class="h-10 w-2/3 rounded-md bg-muted"></div>
+          <div class="h-6 w-full rounded-md bg-muted"></div>
+        </div>
+      </main>
+      <div class="fixed inset-x-0 bottom-0 h-14 border-t bg-surface md:hidden"></div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

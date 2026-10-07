@@ -149,6 +149,9 @@
   --muted: #f3f4f6;
   --muted-foreground: #4b5563; /* 7.6:1 sobre blanco, 6.9:1 sobre muted */
 
+  /* Skeletons: más oscuro que muted para que se vean sobre el fondo gris y sobre crema. */
+  --skeleton: color-mix(in oklab, var(--foreground) 14%, var(--muted));
+
   /* Acento/CTA: amarillo del escudo, siempre texto cafe (9.9:1) */
   --accent: var(--color-amarillo);
   --accent-foreground: var(--color-cafe);
@@ -200,6 +203,7 @@
   --color-secondary-hover: var(--secondary-hover);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-skeleton: var(--skeleton);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-hover: var(--accent-hover);

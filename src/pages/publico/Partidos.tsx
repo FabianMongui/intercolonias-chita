@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router'
-import { ChipFiltro } from '@/components/ChipFiltro'
 import { ErrorDatos, SinTorneo, Vacio } from '@/components/EstadosPagina'
+import { SelectorCancha } from '@/components/SelectorCancha'
 import { SelectorCategoria } from '@/components/SelectorCategoria'
 import { TarjetaPartido, TarjetaPartidoSkeleton } from '@/components/partido/TarjetaPartido'
 import { useCategoria } from '@/hooks/useCategoria'
@@ -54,17 +54,7 @@ export default function Partidos() {
       <div className="flex flex-col gap-3">
         <SelectorCategoria />
         {canchas.length > 1 && (
-          <div role="group" aria-label="Cancha" className="flex flex-wrap gap-2">
-            <ChipFiltro activo={canchaId === undefined} onClick={() => { elegirCancha(undefined) }}>
-              Todas las canchas
-            </ChipFiltro>
-            {canchas.map((c) => (
-              <ChipFiltro key={c.id} activo={canchaId === c.id} onClick={() => { elegirCancha(c.id) }}>
-                {c.nombre}
-                {!c.activa && ' (cerrada)'}
-              </ChipFiltro>
-            ))}
-          </div>
+          <SelectorCancha canchas={canchas} valor={canchaId} onCambio={elegirCancha} />
         )}
       </div>
 

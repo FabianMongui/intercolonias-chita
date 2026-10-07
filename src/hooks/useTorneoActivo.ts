@@ -13,8 +13,6 @@ async function obtenerTorneoActivo() {
   return data
 }
 
-export type TorneoActivo = NonNullable<Awaited<ReturnType<typeof obtenerTorneoActivo>>>
-
 export function useTorneoActivo() {
   return useQuery({
     queryKey: ['torneo-activo'],

@@ -16,7 +16,7 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            lazy: async () => ({ Component: (await import('@/pages/publico/Inicio')).default }),
+            lazy: async () => ({ Component: (await import('@/pages/publico/EnVivo')).default }),
           },
           {
             path: 'partidos',

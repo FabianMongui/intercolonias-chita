@@ -35,6 +35,19 @@ export function formatearHora(instante: string | Date): string {
   return formatoHora.format(new Date(instante))
 }
 
+// en-CA da el formato ISO 'YYYY-MM-DD'.
+const formatoClaveDia = new Intl.DateTimeFormat('en-CA', {
+  timeZone: ZONA_HORARIA,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
+
+/** `timestamptz` → día en Bogotá como 'YYYY-MM-DD' (para agrupar por día). */
+export function claveDia(instante: string | Date): string {
+  return formatoClaveDia.format(new Date(instante))
+}
+
 /** Columna `date` → 'sábado, 7 de noviembre'. */
 export function formatearFechaLarga(fecha: string): string {
   return formatoFechaLarga.format(fechaBogota(fecha))
@@ -43,11 +56,6 @@ export function formatearFechaLarga(fecha: string): string {
 /** Dos columnas `date` → '7 – 8 de noviembre de 2026'. */
 export function formatearRangoFechas(inicio: string, fin: string): string {
   return formatoRangoFechas.formatRange(fechaBogota(inicio), fechaBogota(fin))
-}
-
-/** Columna `time` ('08:00:00') → '08:00'. */
-export function formatearHoraJornada(hora: string): string {
-  return hora.slice(0, 5)
 }
 
 /**

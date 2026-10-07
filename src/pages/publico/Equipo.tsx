@@ -75,7 +75,10 @@ export default function Equipo() {
           Partidos
         </h2>
         {datos.cargando ? (
-          <TarjetaPartidoSkeleton />
+          <div className="grid gap-3 md:grid-cols-2">
+            <TarjetaPartidoSkeleton />
+            <TarjetaPartidoSkeleton />
+          </div>
         ) : datos.error ? (
           <ErrorDatos
             nivel="h3"

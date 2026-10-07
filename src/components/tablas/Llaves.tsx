@@ -9,6 +9,7 @@ import type { Partido } from '@/hooks/usePartidos'
 import { textoFasePartido } from '@/lib/fases'
 import { textoReferencia } from '@/lib/referencias'
 import { cn } from '@/lib/utils'
+import { formatearDiaCorto } from '@/lib/time'
 
 type EtiquetaPartido = (id: number) => string | null | undefined
 
@@ -136,6 +137,8 @@ function Cruce({
   else
     estado = (
       <span className={cn('text-sm tabular-nums', tono)}>
+        {/* La final puede ser otro día que las semis: sin el día parecería que va antes. */}
+        {partido.hora_programada && `${formatearDiaCorto(partido.hora_programada)} · `}
         <TextoHora partido={partido} corto />
       </span>
     )

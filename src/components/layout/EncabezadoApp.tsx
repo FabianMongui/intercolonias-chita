@@ -1,12 +1,15 @@
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { NavSuperior } from '@/components/layout/Navegacion'
 
 export function EncabezadoApp() {
+  // El logo lleva a la portada conservando la categoría elegida.
+  const [params] = useSearchParams()
+  const cat = params.get('cat')
   return (
     <header className="bg-brand text-brand-foreground">
       <div className="mx-auto flex max-w-screen-lg items-center justify-between gap-3 px-4 py-2">
         <Link
-          to="/"
+          to={{ pathname: '/', search: cat ? `?cat=${encodeURIComponent(cat)}` : '' }}
           className="flex min-h-11 items-center gap-3 rounded-md focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-brand-foreground"
         >
           <img

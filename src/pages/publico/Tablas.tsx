@@ -42,7 +42,7 @@ export default function Tablas() {
         <h2 id="titulo-posiciones" className="text-3xl">
           Posiciones
         </h2>
-        {posicionesQ.isLoading ? (
+        {datos.cargando || posicionesQ.isLoading ? (
           <div className="grid gap-4">
             <TablaPosicionesSkeleton />
             <TablaPosicionesSkeleton />
@@ -80,7 +80,7 @@ export default function Tablas() {
         <h2 id="titulo-goleadores" className="text-3xl">
           Goleadores
         </h2>
-        {goleadoresQ.isLoading ? (
+        {datos.cargando || goleadoresQ.isLoading ? (
           <GoleadoresSkeleton />
         ) : goleadoresQ.isError ? (
           <ErrorDatos

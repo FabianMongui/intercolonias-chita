@@ -48,6 +48,17 @@ export function claveDia(instante: string | Date): string {
   return formatoClaveDia.format(new Date(instante))
 }
 
+const formatoDiaCorto = new Intl.DateTimeFormat('es-CO', {
+  timeZone: ZONA_HORARIA,
+  weekday: 'short',
+  day: 'numeric',
+})
+
+/** `timestamptz` → 'sáb 7' (día en Bogotá, para espacios chicos). */
+export function formatearDiaCorto(instante: string | Date): string {
+  return formatoDiaCorto.format(new Date(instante)).replace(/[.,]/g, '')
+}
+
 /** Columna `date` → 'sábado, 7 de noviembre'. */
 export function formatearFechaLarga(fecha: string): string {
   return formatoFechaLarga.format(fechaBogota(fecha))

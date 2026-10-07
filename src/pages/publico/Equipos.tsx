@@ -30,9 +30,9 @@ export default function Equipos() {
       </div>
 
       {torneoQ.isPending || equiposQ.isLoading ? (
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Cargando equipos">
+        <ul key="cargando" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Cargando equipos">
           {Array.from({ length: 6 }, (_, i) => (
-            <li key={i}>
+            <li key={`esqueleto-${String(i)}`}>
               <Skeleton className="h-[72px]" />
             </li>
           ))}
@@ -42,7 +42,8 @@ export default function Equipos() {
       ) : !equiposQ.data || equiposQ.data.length === 0 ? (
         <Vacio>Esta categoría aún no tiene equipos.</Vacio>
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        // key distinta: que React no reutilice el <ul> del esqueleto (lo contaría como salto).
+        <ul key="lista" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {equiposQ.data.map((e) => (
             <li key={e.id}>
               <Link

@@ -6,7 +6,7 @@ resultados en vivo, tablas, llaves, goleadores, y panel de administración desde
 **Lee primero `docs/ESPECIFICACION.md`.** Es la fuente de verdad del proyecto.
 
 ## Estado
-- **Fase 0 cerrada** (PR #1): el prototipo de CRA se reemplazó por la v2 (Vite + TS) y está publicada en
+- **Fases 0 y 1 cerradas** (PR #1 y #2): v2 (Vite + TS) publicada con la parte pública y tiempo real en
   `inter-colonias.web.app`. Del prototipo viejo solo quedan los logos en `public/assets/`.
 - La **base de datos ya está construida y probada** en Supabase (proyecto `database-colonias`,
   ref `kewjmzqiuggpdodnzbvp`): tablas, RLS, vistas, funciones RPC, Realtime y Storage. No rediseñarla;
@@ -37,7 +37,7 @@ shadcn/ui · lucide-react · @dnd-kit (solo arrastre en escritorio) · Firebase 
   `qa-movil` al cerrar la fase, y **un PR a `main` por fase**. El PR genera un preview (comentario del bot) que el
   dueño revisa en el celular antes del merge. Si una fase se alarga, se puede partir en PRs que dejen el sitio usable.
 - Arreglos urgentes en producción: rama `hotfix/<tema>` desde `main` → PR corto.
-- Al empezar una fase nueva, crear la rama desde `main` actualizado; borrar la rama de la fase anterior tras el merge.
+- Al empezar una fase nueva, crear la rama desde `main` actualizado. Las ramas de fase **no se borran** tras el merge: quedan como historial.
 
 ## Rollback en Firebase Hosting
 Si un deploy rompe producción:

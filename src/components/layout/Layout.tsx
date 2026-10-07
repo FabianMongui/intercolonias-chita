@@ -4,6 +4,7 @@ import { EncabezadoApp } from '@/components/layout/EncabezadoApp'
 import { NavInferior } from '@/components/layout/Navegacion'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Toaster } from '@/components/ui/sonner'
+import { useTiempoReal } from '@/hooks/useTiempoReal'
 
 function Marco({ children }: { children: ReactNode }) {
   return (
@@ -18,6 +19,8 @@ function Marco({ children }: { children: ReactNode }) {
 }
 
 export function Layout() {
+  // Un solo canal de Realtime para toda la app pública (§3.7).
+  useTiempoReal()
   return (
     <Marco>
       <Outlet />

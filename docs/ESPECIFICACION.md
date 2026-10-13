@@ -273,5 +273,6 @@ src/
 - Tercer criterio de desempate (juego limpio → requiere tarjetas).
 - Tarjetas amarillas/rojas en la UI (la tabla ya lo soporta).
 - Fechas, equipos y escudos reales del próximo torneo.
+- **Antes del torneo real: limpiar la base.** Crear el torneo real y marcarlo activo; borrar (o dejar inactivo para capacitación) el torneo PRUEBA con sus partidos, eventos, equipos y jugadores de prueba (`supabase/seed/borrar_jugadores_prueba.sql`); revisar usuarios de prueba. Siempre con confirmación del dueño.
 - Formato si una categoría tiene 1 o 3+ grupos (hoy las eliminatorias automáticas solo se generan con 2 grupos;
   en otros casos el super admin crea los partidos de eliminación a mano).

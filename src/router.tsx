@@ -64,6 +64,10 @@ export const router = createBrowserRouter([
             lazy: async () => ({ Component: (await import('@/pages/admin/ControlPartidos')).default }),
           },
           {
+            path: 'partido/:id',
+            lazy: async () => ({ Component: (await import('@/pages/admin/ControlPartido')).default }),
+          },
+          {
             path: 'cuenta',
             lazy: async () => ({ Component: (await import('@/pages/admin/Cuenta')).default }),
           },

@@ -8,7 +8,7 @@ const formatoHora = new Intl.DateTimeFormat('es-CO', {
   timeZone: ZONA_HORARIA,
   hour: '2-digit',
   minute: '2-digit',
-  hour12: false,
+  hourCycle: 'h23', // nunca "24:00" a medianoche (los <input type=time> no lo aceptan)
 })
 
 const formatoFechaLarga = new Intl.DateTimeFormat('es-CO', {
@@ -67,6 +67,16 @@ export function formatearFechaLarga(fecha: string): string {
 /** Dos columnas `date` → '7 – 8 de noviembre de 2026'. */
 export function formatearRangoFechas(inicio: string, fin: string): string {
   return formatoRangoFechas.formatRange(fechaBogota(inicio), fechaBogota(fin))
+}
+
+/** `timestamptz` → { fecha: 'YYYY-MM-DD', hora: 'HH:MM' } en Bogotá (para formularios). */
+export function partesBogota(instante: string | Date): { fecha: string; hora: string } {
+  return { fecha: claveDia(instante), hora: formatearHora(instante) }
+}
+
+/** Fecha y hora escritas en Bogotá → ISO con offset fijo (§6: construir con -05:00). */
+export function isoDesdeBogota(fecha: string, hora: string): string {
+  return `${fecha}T${hora}:00${OFFSET_BOGOTA}`
 }
 
 /**

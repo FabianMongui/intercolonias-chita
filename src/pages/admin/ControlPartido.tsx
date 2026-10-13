@@ -3,6 +3,7 @@ import { type ReactNode, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { ErrorDatos, NoEncontrado } from '@/components/EstadosPagina'
+import { HojaReprogramar } from '@/components/admin/HojaReprogramar'
 import { Escudo } from '@/components/partido/Escudo'
 import { IndicadorEnVivo } from '@/components/partido/IndicadorEnVivo'
 import { Marcador } from '@/components/partido/Marcador'
@@ -43,7 +44,7 @@ export default function ControlPartido() {
   const id = Number(useParams().id)
   const { search } = useLocation()
   const partidoQ = usePartido(id)
-  const { etiquetaPartido, desfaseMs } = usePartidosTorneo()
+  const { etiquetaPartido, desfaseMs, torneo } = usePartidosTorneo()
   const { ejecutar, pendiente } = useAccionesPartido(id)
   const p = partidoQ.data
   const jugadoresQ = useJugadoresPartido(p?.equipo_local_id ?? null, p?.equipo_visitante_id ?? null)
@@ -53,6 +54,8 @@ export default function ControlPartido() {
   // Lado de la última hoja abierta: el título no cambia durante la animación de cierre.
   const [ladoHoja, setLadoHoja] = useState<Lado>('local')
   const [aperturasPenales, setAperturasPenales] = useState(0)
+  const [reprogramarAbierto, setReprogramarAbierto] = useState(false)
+  const [aperturasReprogramar, setAperturasReprogramar] = useState(0)
   const [confirmacion, setConfirmacion] = useState<Confirmacion | null>(null)
   const [penalesAbierto, setPenalesAbierto] = useState(false)
 
@@ -176,6 +179,19 @@ export default function ControlPartido() {
               Este partido no se puede iniciar todavía: faltan equipos por definir.
             </p>
           ))}
+        {p.estado === 'programado' && (
+          <BotonAccion
+            variante="outline"
+            cargando={pendiente?.tipo === 'reprogramar'}
+            disabled={ocupado}
+            onClick={() => {
+              setAperturasReprogramar((n) => n + 1)
+              setReprogramarAbierto(true)
+            }}
+          >
+            Corregir hora o cancha
+          </BotonAccion>
+        )}
 
         {enVivo && (
           <>
@@ -359,6 +375,25 @@ export default function ControlPartido() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {p.estado === 'programado' && (
+        <HojaReprogramar
+          key={`reprogramar-${String(aperturasReprogramar)}`}
+          abierta={reprogramarAbierto}
+          cerrar={() => {
+            setReprogramarAbierto(false)
+          }}
+          horaProgramada={p.hora_programada}
+          canchaId={p.cancha_id}
+          canchas={torneo?.canchas ?? []}
+          fechaMin={torneo?.fecha_inicio}
+          fechaMax={torneo?.fecha_fin}
+          proponer={(accion, descripcion) => {
+            setReprogramarAbierto(false)
+            setConfirmacion({ titulo: 'Reprogramar partido', descripcion, boton: 'Reprogramar', accion })
+          }}
+        />
+      )}
 
       <DialogoPenales
         key={`penales-${String(aperturasPenales)}`}

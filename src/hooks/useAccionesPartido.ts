@@ -10,6 +10,7 @@ export type Accion =
   | { tipo: 'finalizar'; penalesLocal?: number; penalesVisitante?: number }
   | { tipo: 'gol'; equipoId: number; jugadorId: number | null; autogol: boolean }
   | { tipo: 'anular'; eventoId: number }
+  | { tipo: 'reprogramar'; hora?: string; canchaId?: number }
 
 /** Los errores de las RPC ya vienen en español (§3.4); se traducen solo los de red. */
 function mensajeError(error: unknown): string {
@@ -50,6 +51,16 @@ async function ejecutar(partidoId: number, accion: Accion): Promise<void> {
         p_equipo: accion.equipoId,
         ...(accion.jugadorId !== null && { p_jugador: accion.jugadorId }),
         p_autogol: accion.autogol,
+      })
+      if (error) throw error
+      return
+    }
+    case 'reprogramar': {
+      // La base valida cancha activa/tipo/cancha fija y recalcula las horas estimadas (migración 08).
+      const { error } = await supabase.rpc('reprogramar_partido', {
+        p_id: partidoId,
+        ...(accion.hora !== undefined && { p_hora: accion.hora }),
+        ...(accion.canchaId !== undefined && { p_cancha: accion.canchaId }),
       })
       if (error) throw error
       return

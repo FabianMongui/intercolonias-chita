@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useMutacionConfig } from '@/hooks/useMutacionConfig'
 import { supabase } from '@/lib/supabase'
 
-const CLAVES = ['grupos-config', 'equipos-config', 'equipo-config', 'categorias-config', 'equipos', 'equipo', 'posiciones']
+const CLAVES = ['grupos-config', 'fixture-config', 'equipos-config', 'equipo-config', 'categorias-config', 'equipos', 'equipo', 'posiciones']
 
 /** Grupos y equipos de una categoría, y si ya hay partidos de grupos (entonces no se cambian). */
 async function obtenerBombos(categoriaId: number) {

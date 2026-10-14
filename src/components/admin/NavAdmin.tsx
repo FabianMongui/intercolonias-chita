@@ -9,6 +9,7 @@ const SECCIONES = [
   { ruta: '/admin/categorias', texto: 'Categorías' },
   { ruta: '/admin/equipos', texto: 'Equipos' },
   { ruta: '/admin/grupos', texto: 'Grupos' },
+  { ruta: '/admin/fixture', texto: 'Fixture' },
 ]
 
 /** "Partidos" abarca la lista (/admin) y el control de cada partido (/admin/partido/:id). */

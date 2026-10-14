@@ -95,6 +95,10 @@ export const router = createBrowserRouter([
                 path: 'grupos',
                 lazy: async () => ({ Component: (await import('@/pages/admin/config/Grupos')).default }),
               },
+              {
+                path: 'fixture',
+                lazy: async () => ({ Component: (await import('@/pages/admin/config/Fixture')).default }),
+              },
             ],
           },
           {

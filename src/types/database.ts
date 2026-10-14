@@ -660,6 +660,10 @@ export type Database = {
         Args: { p: Database["public"]["Tables"]["partidos"]["Row"] }
         Returns: number
       }
+      borrar_partidos_categoria: {
+        Args: { p_categoria: number }
+        Returns: number
+      }
       generar_partidos_categoria: {
         Args: { p_categoria: number }
         Returns: number

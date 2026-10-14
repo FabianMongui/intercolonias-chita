@@ -87,6 +87,10 @@ export const router = createBrowserRouter([
                 path: 'equipos',
                 lazy: async () => ({ Component: (await import('@/pages/admin/config/Equipos')).default }),
               },
+              {
+                path: 'equipos/:id',
+                lazy: async () => ({ Component: (await import('@/pages/admin/config/EquipoConfig')).default }),
+              },
             ],
           },
           {

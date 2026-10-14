@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "13.0.5"
   }
   public: {
     Tables: {
@@ -578,6 +578,27 @@ export type Database = {
       }
     }
     Functions: {
+      activar_torneo: {
+        Args: { p_id: number }
+        Returns: {
+          activo: boolean
+          created_at: string
+          fecha_fin: string
+          fecha_inicio: string
+          hora_fin_jornada: string
+          hora_inicio_jornada: string
+          id: number
+          minutos_entre_partidos: number
+          nombre: string
+          tipo: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "torneos"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       ahora: { Args: never; Returns: string }
       ajustar_jornada: {
         Args: { d: string; hf: string; hi: string; s: string }

@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { ErrorFormulario } from '@/components/CampoClave'
 import { ErrorDatos } from '@/components/EstadosPagina'
 import { ConfirmarBorrado } from '@/components/admin/ConfirmarBorrado'
+import { SelectorTipoCancha, type TipoCancha } from '@/components/admin/SelectorTipoCancha'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -260,7 +261,7 @@ function FormularioCancha({
 }) {
   const id = useId()
   const [nombre, setNombre] = useState(cancha?.nombre ?? '')
-  const [tipo, setTipo] = useState<'F11' | 'F6'>(cancha?.tipo === 'F6' ? 'F6' : 'F11')
+  const [tipo, setTipo] = useState<TipoCancha>(cancha?.tipo === 'F6' ? 'F6' : 'F11')
   const [error, setError] = useState<string | null>(null)
 
   const enviar = (e: SubmitEvent<HTMLFormElement>) => {
@@ -300,28 +301,7 @@ function FormularioCancha({
               }}
             />
           </div>
-          <fieldset className="flex flex-col gap-2">
-            <legend className="mb-2 text-sm font-semibold">Tipo</legend>
-            <div className="grid grid-cols-2 gap-1 rounded-xl bg-muted p-1">
-              {(['F11', 'F6'] as const).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  aria-pressed={tipo === t}
-                  onClick={() => {
-                    setTipo(t)
-                  }}
-                  className={
-                    tipo === t
-                      ? 'min-h-11 rounded-lg bg-primary font-semibold text-primary-foreground focus-visible:outline-3 focus-visible:outline-ring'
-                      : 'min-h-11 rounded-lg font-semibold text-muted-foreground hover:bg-surface focus-visible:outline-3 focus-visible:outline-ring'
-                  }
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          </fieldset>
+          <SelectorTipoCancha valor={tipo} cambiar={setTipo} />
           <ErrorFormulario id={`${id}-error`}>{error}</ErrorFormulario>
           <Button type="submit" size="lg" disabled={ocupado}>
             {cancha ? 'Guardar cambios' : 'Crear cancha'}

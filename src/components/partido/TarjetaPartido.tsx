@@ -23,6 +23,8 @@ interface TarjetaPartidoProps {
   minutosPorTiempo: number
   /** Variante grande para el "siguiente partido" de la portada. */
   destacado?: boolean
+  /** Ruta a la que lleva la tarjeta (por defecto el detalle público del partido). */
+  destino?: string
 }
 
 /** Solo se muestra la cuenta regresiva si faltan menos de 2 horas. */
@@ -39,6 +41,7 @@ export function TarjetaPartido({
   desfaseMs,
   minutosPorTiempo,
   destacado = false,
+  destino,
 }: TarjetaPartidoProps) {
   const { search } = useLocation()
   const { estado } = partido
@@ -48,7 +51,7 @@ export function TarjetaPartido({
 
   return (
     <Link
-      to={{ pathname: `/partido/${String(partido.id)}`, search }}
+      to={{ pathname: destino ?? `/partido/${String(partido.id)}`, search }}
       className={cn(
         CAJA,
         'focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring',

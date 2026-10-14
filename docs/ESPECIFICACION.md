@@ -90,6 +90,7 @@ exportarlas a `supabase/migrations/` (con el MCP de Supabase o `supabase db pull
 | `iniciar_segundo_tiempo(p_id)` | admin | `descanso` → `2T` |
 | `finalizar_partido(p_id, p_penales_local?, p_penales_visitante?)` | admin | Finaliza. En eliminatoria empatada **exige** penales con ganador (si no, error con mensaje claro) |
 | `registrar_gol(p_partido, p_equipo, p_jugador?, p_autogol?)` | admin | Inserta el gol con minuto calculado en el servidor |
+| `reprogramar_partido(p_id, p_hora?, p_cancha?)` | admin | Corrige hora y/o cancha de un partido **pendiente**: valida cancha activa, del tipo de la categoría y su cancha fija; recalcula horas estimadas (migración 08) |
 | `generar_partidos_categoria(p_categoria)` | super admin | Crea todos contra todos por grupo + (si hay exactamente 2 grupos) semis, 3er puesto y final. **Falla si la categoría ya tiene partidos**: la UI primero los borra (delete en `partidos`, permitido al super admin) con confirmación, y solo si ninguno ha iniciado |
 | `programar_horarios(p_torneo, p_desde?)` | super admin | Asigna cancha y hora a **todos los partidos pendientes** respetando: canchas activas, tipo/cancha fija, jornada, un equipo no juega dos partidos a la vez, eliminatorias después de grupos. Sin `p_desde` arranca al inicio del torneo; con `p_desde = now()` sirve para **reprogramar en pleno torneo**. ⚠️ Sobrescribe ediciones manuales de pendientes → confirmar |
 | `ganador(partido)` / `perdedor(partido)` | todos | Columnas calculadas: `select('*, ganador')` |
@@ -98,8 +99,8 @@ Errores de RPC vienen con mensajes en español → mostrarlos tal cual en un toa
 
 ### 3.5 Seguridad (RLS, ya aplicada)
 - `anon`: solo lectura de todo menos `perfiles`.
-- `admin` activo: actualizar `partidos` (horas, cancha, correcciones) y escribir/borrar `eventos`; RPC de partido.
-- `super_admin` activo: todo (config, equipos, jugadores, grupos, crear/borrar partidos, perfiles, escudos).
+- `admin` activo: todas las acciones del partido **vía RPC** (iniciar, goles, medio tiempo, finalizar, `reprogramar_partido`) y escribir/borrar `eventos`. Sin UPDATE directo sobre `partidos` (migración 08).
+- `super_admin` activo: todo (config, equipos, jugadores, grupos, crear/editar/borrar partidos con UPDATE directo, perfiles, escudos).
 - Registro público **desactivado** en Auth. Los usuarios se crean desde el panel de Supabase
   (Authentication → Users → Add user, "Auto Confirm"); el perfil nace inactivo y el super admin lo activa.
 
@@ -272,5 +273,6 @@ src/
 - Tercer criterio de desempate (juego limpio → requiere tarjetas).
 - Tarjetas amarillas/rojas en la UI (la tabla ya lo soporta).
 - Fechas, equipos y escudos reales del próximo torneo.
+- **Antes del torneo real: limpiar la base.** Crear el torneo real y marcarlo activo; borrar (o dejar inactivo para capacitación) el torneo PRUEBA con sus partidos, eventos, equipos y jugadores de prueba (`supabase/seed/borrar_jugadores_prueba.sql`); revisar usuarios de prueba. Siempre con confirmación del dueño.
 - Formato si una categoría tiene 1 o 3+ grupos (hoy las eliminatorias automáticas solo se generan con 2 grupos;
   en otros casos el super admin crea los partidos de eliminación a mano).

@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router'
 import { ErrorRaiz, ErrorRuta } from '@/components/layout/ErrorRuta'
 import { Layout, LayoutCargando } from '@/components/layout/Layout'
+import { AdminCargando } from '@/pages/admin/AdminCargando'
 
 // Cada página se descarga aparte: la primera visita solo baja la que se abre.
 export const router = createBrowserRouter([
@@ -38,9 +39,37 @@ export const router = createBrowserRouter([
             path: 'partido/:id',
             lazy: async () => ({ Component: (await import('@/pages/publico/Partido')).default }),
           },
+        ],
+      },
+    ],
+  },
+  // Panel de administración: layout propio (sin la navegación pública), todo en diferido.
+  {
+    path: '/admin/login',
+    errorElement: <ErrorRaiz />,
+    hydrateFallbackElement: <AdminCargando />,
+    lazy: async () => ({ Component: (await import('@/pages/admin/Login')).default }),
+  },
+  {
+    path: '/admin',
+    errorElement: <ErrorRaiz />,
+    hydrateFallbackElement: <AdminCargando />,
+    lazy: async () => ({ Component: (await import('@/pages/admin/AdminLayout')).default }),
+    children: [
+      {
+        errorElement: <ErrorRuta />,
+        children: [
           {
-            path: 'admin',
-            lazy: async () => ({ Component: (await import('@/pages/admin/Admin')).default }),
+            index: true,
+            lazy: async () => ({ Component: (await import('@/pages/admin/ControlPartidos')).default }),
+          },
+          {
+            path: 'partido/:id',
+            lazy: async () => ({ Component: (await import('@/pages/admin/ControlPartido')).default }),
+          },
+          {
+            path: 'cuenta',
+            lazy: async () => ({ Component: (await import('@/pages/admin/Cuenta')).default }),
           },
         ],
       },

@@ -848,6 +848,7 @@ export type Database = {
         Args: { p_categoria: number; p_ref: string }
         Returns: number
       }
+      sortear_grupos: { Args: { p_categoria: number }; Returns: number }
     }
     Enums: {
       [_ in never]: never

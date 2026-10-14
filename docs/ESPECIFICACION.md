@@ -82,6 +82,9 @@ exportarlas a `supabase/migrations/` (con el MCP de Supabase o `supabase db pull
   categoría (si no: "La cancha fija debe ser del mismo torneo y del tipo de la categoría"). No se puede cambiar el
   tipo/torneo de una cancha que es cancha fija de una categoría incompatible ("Esta cancha es la cancha fija de …;
   quítala allí primero").
+- **Grupos cerrados** (migración 14): si la categoría ya tiene partidos de fase `grupos`, no se pueden crear, editar ni
+  borrar sus grupos ni mover equipos de grupo ("La categoría ya tiene partidos de grupos; bórralos antes de cambiar
+  los grupos"). Los borrados en cascada (borrar torneo o categoría) no se bloquean.
 - La **hora de finalización** es la del momento en que el admin toca "Finalizar" (`fin_real = now()` del servidor).
 
 ### 3.4 Funciones RPC (llamar con `supabase.rpc`)
@@ -95,6 +98,7 @@ exportarlas a `supabase/migrations/` (con el MCP de Supabase o `supabase db pull
 | `finalizar_partido(p_id, p_penales_local?, p_penales_visitante?)` | admin | Finaliza. En eliminatoria empatada **exige** penales con ganador (si no, error con mensaje claro) |
 | `registrar_gol(p_partido, p_equipo, p_jugador?, p_autogol?)` | admin | Inserta el gol con minuto calculado en el servidor |
 | `reprogramar_partido(p_id, p_hora?, p_cancha?)` | admin | Corrige hora y/o cancha de un partido **pendiente**: valida cancha activa, del tipo de la categoría y su cancha fija; recalcula horas estimadas (migración 08) |
+| `sortear_grupos(p_categoria)` | super admin | Reparte al azar **solo los equipos sin grupo** entre los grupos de la categoría, equilibrando tamaños (cada equipo va al grupo con menos equipos, contando los asignados a mano como cabezas de serie; empate al azar). Devuelve cuántos asignó. Falla si no hay grupos o si la categoría ya tiene partidos de grupos (migración 13) |
 | `generar_partidos_categoria(p_categoria)` | super admin | Crea todos contra todos por grupo + (si hay exactamente 2 grupos) semis, 3er puesto y final. **Falla si la categoría ya tiene partidos**: la UI primero los borra (delete en `partidos`, permitido al super admin) con confirmación, y solo si ninguno ha iniciado |
 | `programar_horarios(p_torneo, p_desde?)` | super admin | Asigna cancha y hora a **todos los partidos pendientes** respetando: canchas activas, tipo/cancha fija, jornada, un equipo no juega dos partidos a la vez, eliminatorias después de grupos. Sin `p_desde` arranca al inicio del torneo; con `p_desde = now()` sirve para **reprogramar en pleno torneo**. ⚠️ Sobrescribe ediciones manuales de pendientes → confirmar |
 | `advertencias_torneo(p_torneo)` | autenticados (solo lectura) | Lista de advertencias de partidos no finalizados: `tipo` (`fuera_de_fecha`, `fuera_de_jornada`, `equipo_solapado`, `cancha_cerrada`, `sin_cancha`, `sin_hora`, `cancha_incompatible`, `eliminatoria_antes_de_grupos`), `partido_id`, `otro_partido_id?` (solo en solapados), `categoria_id`, `mensaje` (español, horas en Bogotá). Hora de referencia `coalesce(hora_estimada, hora_programada)` (en vivo: `inicio_real`); duración 2×tiempo + descanso. En eliminatorias sin equipos resueltos el mensaje usa `etiqueta` (o el nombre de la fase). `eliminatoria_antes_de_grupos`: eliminatoria que empieza antes del fin del último partido de grupos pendiente de su categoría. Ordenada por hora (migraciones 11 y 12) |

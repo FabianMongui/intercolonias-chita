@@ -78,6 +78,10 @@ exportarlas a `supabase/migrations/` (con el MCP de Supabase o `supabase db pull
 - **Horas estimadas**: al iniciar/finalizar cualquier partido se recalcula `hora_estimada` de los partidos pendientes
   de cada cancha según los retrasos reales. `hora_programada` **no se toca**. Mostrar "Programado 10:00 · aprox 10:25"
   cuando difieran.
+- **Cancha fija** (migración 11): `categorias.cancha_fija_id` debe ser una cancha del mismo torneo y del tipo de la
+  categoría (si no: "La cancha fija debe ser del mismo torneo y del tipo de la categoría"). No se puede cambiar el
+  tipo/torneo de una cancha que es cancha fija de una categoría incompatible ("Esta cancha es la cancha fija de …;
+  quítala allí primero").
 - La **hora de finalización** es la del momento en que el admin toca "Finalizar" (`fin_real = now()` del servidor).
 
 ### 3.4 Funciones RPC (llamar con `supabase.rpc`)
@@ -93,6 +97,7 @@ exportarlas a `supabase/migrations/` (con el MCP de Supabase o `supabase db pull
 | `reprogramar_partido(p_id, p_hora?, p_cancha?)` | admin | Corrige hora y/o cancha de un partido **pendiente**: valida cancha activa, del tipo de la categoría y su cancha fija; recalcula horas estimadas (migración 08) |
 | `generar_partidos_categoria(p_categoria)` | super admin | Crea todos contra todos por grupo + (si hay exactamente 2 grupos) semis, 3er puesto y final. **Falla si la categoría ya tiene partidos**: la UI primero los borra (delete en `partidos`, permitido al super admin) con confirmación, y solo si ninguno ha iniciado |
 | `programar_horarios(p_torneo, p_desde?)` | super admin | Asigna cancha y hora a **todos los partidos pendientes** respetando: canchas activas, tipo/cancha fija, jornada, un equipo no juega dos partidos a la vez, eliminatorias después de grupos. Sin `p_desde` arranca al inicio del torneo; con `p_desde = now()` sirve para **reprogramar en pleno torneo**. ⚠️ Sobrescribe ediciones manuales de pendientes → confirmar |
+| `advertencias_torneo(p_torneo)` | autenticados (solo lectura) | Lista de advertencias de partidos no finalizados: `tipo` (`fuera_de_fecha`, `fuera_de_jornada`, `equipo_solapado`, `cancha_cerrada`, `sin_cancha`, `sin_hora`, `cancha_incompatible`), `partido_id`, `otro_partido_id?` (solo en solapados), `categoria_id`, `mensaje` (español, horas en Bogotá). Hora de referencia `coalesce(hora_estimada, hora_programada)` (en vivo: `inicio_real`); duración 2×tiempo + descanso. Ordenada por hora (migración 11) |
 | `ganador(partido)` / `perdedor(partido)` | todos | Columnas calculadas: `select('*, ganador')` |
 
 Errores de RPC vienen con mensajes en español → mostrarlos tal cual en un toast.

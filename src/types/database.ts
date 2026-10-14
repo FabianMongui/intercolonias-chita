@@ -599,6 +599,16 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      advertencias_torneo: {
+        Args: { p_torneo: number }
+        Returns: {
+          categoria_id: number
+          mensaje: string
+          otro_partido_id: number | null
+          partido_id: number
+          tipo: string
+        }[]
+      }
       ahora: { Args: never; Returns: string }
       ajustar_jornada: {
         Args: { d: string; hf: string; hi: string; s: string }

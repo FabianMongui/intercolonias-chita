@@ -1,9 +1,10 @@
 import { ChevronRight, Plus } from 'lucide-react'
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate, useOutletContext, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { ErrorDatos } from '@/components/EstadosPagina'
 import { FormularioEquipo } from '@/components/admin/FormularioEquipo'
+import { SelectorCategoria } from '@/components/admin/SelectorCategoria'
 import { Escudo } from '@/components/partido/Escudo'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -18,7 +19,6 @@ export default function Equipos() {
   const categorias = categoriasQ.data ?? []
   const [params, setParams] = useSearchParams()
   const navigate = useNavigate()
-  const idSelector = useId()
   const categoria = categorias.find((c) => c.id === Number(params.get('cat'))) ?? categorias[0]
   const equiposQ = useEquiposConfig(categoria?.id)
   const { crearEquipo } = useMutacionesEquipos()
@@ -62,25 +62,13 @@ export default function Equipos() {
         </p>
       ) : (
         <>
-          <div className="flex flex-col gap-2">
-            <label htmlFor={idSelector} className="text-sm font-semibold">
-              Categoría
-            </label>
-            <select
-              id={idSelector}
-              value={categoria ? String(categoria.id) : ''}
-              onChange={(e) => {
-                setParams({ cat: e.target.value }, { replace: true })
-              }}
-              className="min-h-11 w-full rounded-lg border border-input bg-surface px-3 text-base font-semibold text-foreground focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring sm:max-w-xs"
-            >
-              {categorias.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
+          <SelectorCategoria
+            categorias={categorias}
+            categoria={categoria}
+            cambiar={(id) => {
+              setParams({ cat: id }, { replace: true })
+            }}
+          />
 
           {equiposQ.isPending ? (
             <div className="flex flex-col gap-3" aria-busy="true" aria-label="Cargando equipos">

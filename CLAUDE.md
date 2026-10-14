@@ -6,7 +6,7 @@ resultados en vivo, tablas, llaves, goleadores, y panel de administración desde
 **Lee primero `docs/ESPECIFICACION.md`.** Es la fuente de verdad del proyecto.
 
 ## Estado
-- **Fases 0 y 1 cerradas** (PR #1 y #2): v2 (Vite + TS) publicada con la parte pública y tiempo real en
+- **Fases 0, 1 y 2 cerradas** (PR #1, #2 y #3): parte pública con tiempo real y panel del admin de cancha en
   `inter-colonias.web.app`. Del prototipo viejo solo quedan los logos en `public/assets/`.
 - La **base de datos ya está construida y probada** en Supabase (proyecto `database-colonias`,
   ref `kewjmzqiuggpdodnzbvp`): tablas, RLS, vistas, funciones RPC, Realtime y Storage. No rediseñarla;

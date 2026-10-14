@@ -107,7 +107,7 @@ Errores de RPC vienen con mensajes en español → mostrarlos tal cual en un toa
 ### 3.6 Storage
 Bucket **público** `escudos` (máx 1 MB, png/jpeg/webp). Guardar en `equipos.escudo_path` solo la ruta
 (ej. `unica/chita-fc.webp`) y armar la URL con `supabase.storage.from('escudos').getPublicUrl(path)`.
-Al subir: redimensionar a ~256 px y convertir a webp en el navegador. Si no hay escudo, mostrar iniciales en un círculo.
+Al subir: redimensionar a ~256 px y convertir a webp en el navegador. Si no hay escudo, mostrar iniciales en un círculo. Ruta: `<torneo>/<categoría>/<equipo>-<id>-<marca de tiempo>.webp` (nombre nuevo en cada cambio, para que no quede en caché); al cambiar o quitar el escudo se borra el archivo anterior. Solo el super admin sube, lee el listado y borra (migración 10).
 (El bucket viejo `inter-colonias` es privado y está obsoleto; no usarlo.)
 
 ### 3.7 Realtime

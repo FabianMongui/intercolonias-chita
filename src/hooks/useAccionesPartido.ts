@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRef } from 'react'
 import { toast } from 'sonner'
+import { mensajeError } from '@/lib/errores'
 import { supabase } from '@/lib/supabase'
 
 export type Accion =
@@ -11,13 +12,6 @@ export type Accion =
   | { tipo: 'gol'; equipoId: number; jugadorId: number | null; autogol: boolean }
   | { tipo: 'anular'; eventoId: number }
   | { tipo: 'reprogramar'; hora?: string; canchaId?: number }
-
-/** Los errores de las RPC ya vienen en español (§3.4); se traducen solo los de red. */
-function mensajeError(error: unknown): string {
-  const mensaje = error instanceof Error ? error.message : typeof error === 'object' && error && 'message' in error ? String(error.message) : ''
-  if (/fetch|network/i.test(mensaje)) return 'Sin conexión. Revisa la señal e intenta de nuevo.'
-  return mensaje || 'No se pudo completar la acción. Intenta de nuevo.'
-}
 
 async function ejecutar(partidoId: number, accion: Accion): Promise<void> {
   switch (accion.tipo) {

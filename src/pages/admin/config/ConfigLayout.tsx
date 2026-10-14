@@ -54,7 +54,7 @@ export default function ConfigLayout() {
   return (
     <div className="flex flex-col gap-6">
       {torneos.length > 0 && torneo && (
-        <div className="flex flex-col gap-2 rounded-lg border bg-surface-warm p-3 text-surface-warm-foreground">
+        <div className="flex flex-col gap-1 rounded-lg border bg-surface-warm p-2 text-surface-warm-foreground">
           <label htmlFor={idSelector} className="text-sm font-semibold">
             Torneo en edición
           </label>
@@ -68,10 +68,15 @@ export default function ConfigLayout() {
           >
             {torneos.map((t) => (
               <option key={t.id} value={t.id}>
-                {`${t.nombre}${t.activo ? ' (activo)' : ''}`}
+                {t.nombre}
               </option>
             ))}
           </select>
+          <p className="text-sm">
+            {torneo.activo
+              ? 'Es el torneo que ve el público.'
+              : `No está activo; el público ve “${torneos.find((t) => t.activo)?.nombre ?? 'ningún torneo'}”.`}
+          </p>
         </div>
       )}
       <Outlet context={contexto} />

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { NavLink, useLocation } from 'react-router'
 import { cn } from '@/lib/utils'
 
@@ -18,9 +19,14 @@ function estaActiva(ruta: string, pathname: string): boolean {
 /** Secciones del panel del super admin (el admin de cancha solo usa Partidos y no ve este menú). */
 export function NavAdmin() {
   const { pathname } = useLocation()
+  const lista = useRef<HTMLUListElement>(null)
+  // En el celular no caben todas: la pestaña activa se desplaza hasta quedar visible.
+  useEffect(() => {
+    lista.current?.querySelector('[aria-current=page]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+  }, [pathname])
   return (
     <nav aria-label="Secciones del panel" className="border-b bg-surface">
-      <ul className="mx-auto flex max-w-screen-lg overflow-x-auto px-2 [scrollbar-width:none]">
+      <ul ref={lista} className="mx-auto flex max-w-screen-lg overflow-x-auto px-2 [scrollbar-width:none]">
         {SECCIONES.map(({ ruta, texto }) => {
           const activa = estaActiva(ruta, pathname)
           return (

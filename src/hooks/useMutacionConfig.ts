@@ -10,9 +10,10 @@ export function useMutacionConfig<V, R = void>(fn: (variables: V) => Promise<R>,
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: fn,
+    // 'all': también las pantallas que no están abiertas, para que al volver no se vean datos viejos.
     // También si falla: una operación a medias (p. ej. reordenar) no debe dejar la pantalla vieja.
     onSettled: () => {
-      for (const clave of claves) void queryClient.invalidateQueries({ queryKey: [clave] })
+      for (const clave of claves) void queryClient.invalidateQueries({ queryKey: [clave], refetchType: 'all' })
     },
     onError: (error) => {
       toast.error(mensajeError(error))

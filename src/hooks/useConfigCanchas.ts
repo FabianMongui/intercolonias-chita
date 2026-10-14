@@ -2,19 +2,21 @@ import { useQuery } from '@tanstack/react-query'
 import { useMutacionConfig } from '@/hooks/useMutacionConfig'
 import { supabase } from '@/lib/supabase'
 
-const CLAVES = ['canchas-config', 'torneo-activo', 'partidos']
+const CLAVES = ['canchas-config', 'torneo-activo', 'partidos', 'categorias-config']
 
 async function obtenerCanchas(torneoId: number) {
   const { data, error } = await supabase
     .from('canchas')
-    .select('id, nombre, tipo, activa, orden, partidos(estado)')
+    .select('id, nombre, tipo, activa, orden, partidos(estado), categorias(nombre)')
     .eq('torneo_id', torneoId)
     .order('orden')
     .order('id')
   if (error) throw error
   // Partidos que todavía se juegan en cada cancha (para avisar antes de cerrarla o borrarla).
-  return data.map(({ partidos, ...c }) => ({
+  return data.map(({ partidos, categorias, ...c }) => ({
     ...c,
+    /** Categorías que la tienen como cancha fija. */
+    fijaDe: categorias.map((cat) => cat.nombre),
     pendientes: partidos.filter((p) => p.estado !== 'finalizado').length,
     total: partidos.length,
   }))

@@ -235,9 +235,12 @@ export default function Canchas() {
           }}
           titulo="Borrar cancha"
           nombre={aBorrar.nombre}
-          consecuencias={
-            aBorrar.total > 0 ? [`${plural(aBorrar.total, 'partido quedará', 'partidos quedarán')} sin cancha asignada`] : []
-          }
+          consecuencias={[
+            ...(aBorrar.total > 0
+              ? [`${plural(aBorrar.total, 'partido quedará', 'partidos quedarán')} sin cancha asignada`]
+              : []),
+            ...aBorrar.fijaDe.map((cat) => `${cat} se queda sin cancha fija`),
+          ]}
           borrar={() => {
             const cancha = aBorrar
             mutaciones.borrar.mutate(cancha.id, { onSuccess: () => toast.success(`${cancha.nombre} borrada`, { duration: 3000 }) })

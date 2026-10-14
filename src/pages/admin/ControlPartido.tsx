@@ -6,6 +6,7 @@ import { ErrorDatos, NoEncontrado } from '@/components/EstadosPagina'
 import { HojaReprogramar } from '@/components/admin/HojaReprogramar'
 import { Escudo } from '@/components/partido/Escudo'
 import { IndicadorEnVivo } from '@/components/partido/IndicadorEnVivo'
+import { MarcaGanador } from '@/components/partido/MarcaGanador'
 import { Marcador } from '@/components/partido/Marcador'
 import { Reloj } from '@/components/partido/Reloj'
 import { TextoHora } from '@/components/partido/TextoHora'
@@ -120,7 +121,12 @@ export default function ControlPartido() {
           {`Control de ${nombre('local')} contra ${nombre('visitante')}`}
         </h1>
         <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-2">
-          <Equipo nombre={nombre('local')} escudo={p.local?.escudo_path ?? null} definido={p.local !== null} />
+          <Equipo
+            nombre={nombre('local')}
+            escudo={p.local?.escudo_path ?? null}
+            definido={p.local !== null}
+            gano={p.ganador != null && p.ganador === p.equipo_local_id}
+          />
           <div className="flex flex-col items-center pt-2">
             {p.estado === 'programado' ? (
               <span className="font-display text-5xl text-muted-foreground">vs</span>
@@ -134,7 +140,12 @@ export default function ControlPartido() {
               />
             )}
           </div>
-          <Equipo nombre={nombre('visitante')} escudo={p.visitante?.escudo_path ?? null} definido={p.visitante !== null} />
+          <Equipo
+            nombre={nombre('visitante')}
+            escudo={p.visitante?.escudo_path ?? null}
+            definido={p.visitante !== null}
+            gano={p.ganador != null && p.ganador === p.equipo_visitante_id}
+          />
         </div>
         <div className="flex min-h-14 flex-col items-center justify-center gap-1">
           {enVivo && (
@@ -429,7 +440,17 @@ function BotonAccion({
   )
 }
 
-function Equipo({ nombre, escudo, definido }: { nombre: string; escudo: string | null; definido: boolean }) {
+function Equipo({
+  nombre,
+  escudo,
+  definido,
+  gano,
+}: {
+  nombre: string
+  escudo: string | null
+  definido: boolean
+  gano: boolean
+}) {
   return (
     <div className="flex flex-col items-center gap-2 text-center">
       {definido ? (
@@ -440,6 +461,7 @@ function Equipo({ nombre, escudo, definido }: { nombre: string; escudo: string |
       <span className={cn('leading-tight font-semibold [overflow-wrap:anywhere]', !definido && 'text-muted-foreground italic')}>
         {nombre}
       </span>
+      {gano && <MarcaGanador />}
     </div>
   )
 }

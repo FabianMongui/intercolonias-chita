@@ -3,6 +3,7 @@ import { ExternalLink, LogOut, UserRound } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router'
 import { ErrorDatos } from '@/components/EstadosPagina'
+import { NavAdmin } from '@/components/admin/NavAdmin'
 import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/sonner'
 import { NOMBRE_ROL, type Perfil, usePerfil } from '@/hooks/usePerfil'
@@ -77,6 +78,7 @@ function Marco({ perfil, children }: { perfil?: Perfil; children: ReactNode }) {
   return (
     <>
       <Encabezado perfil={perfil} />
+      {perfil?.rol === 'super_admin' && <NavAdmin />}
       <main className="mx-auto max-w-screen-lg px-4 pt-6 pb-10">{children}</main>
       <Toaster />
     </>

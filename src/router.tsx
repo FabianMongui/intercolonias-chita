@@ -68,6 +68,28 @@ export const router = createBrowserRouter([
             lazy: async () => ({ Component: (await import('@/pages/admin/ControlPartido')).default }),
           },
           {
+            // Configuración del torneo: solo super admin (el layout lo verifica).
+            lazy: async () => ({ Component: (await import('@/pages/admin/config/ConfigLayout')).default }),
+            children: [
+              {
+                path: 'torneo',
+                lazy: async () => ({ Component: (await import('@/pages/admin/config/Torneo')).default }),
+              },
+              {
+                path: 'canchas',
+                lazy: async () => ({ Component: (await import('@/pages/admin/config/Canchas')).default }),
+              },
+              {
+                path: 'categorias',
+                lazy: async () => ({ Component: (await import('@/pages/admin/config/Categorias')).default }),
+              },
+              {
+                path: 'equipos',
+                lazy: async () => ({ Component: (await import('@/pages/admin/config/Equipos')).default }),
+              },
+            ],
+          },
+          {
             path: 'cuenta',
             lazy: async () => ({ Component: (await import('@/pages/admin/Cuenta')).default }),
           },

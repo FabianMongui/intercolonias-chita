@@ -2,13 +2,13 @@ import { useQuery } from '@tanstack/react-query'
 import { useMutacionConfig } from '@/hooks/useMutacionConfig'
 import { supabase } from '@/lib/supabase'
 
-const CLAVES = ['fixture-config', 'grupos-config', 'categorias-config', 'partidos', 'posiciones', 'torneo-activo']
+const CLAVES = ['fixture-config', 'grupos-config', 'categorias-config', 'canchas-config', 'partidos', 'posiciones', 'torneo-activo']
 
 /** Por categoría: grupos, equipos y partidos, para generar o borrar el fixture. */
 async function obtenerFixture(torneoId: number) {
   const { data, error } = await supabase
     .from('categorias')
-    .select('id, nombre, grupos(id, nombre), equipos(id, grupo_id), partidos(id, estado, fase)')
+    .select('id, nombre, grupos(id, nombre), equipos(id, grupo_id), partidos(id, estado, fase, hora_programada)')
     .eq('torneo_id', torneoId)
     .order('orden')
     .order('id')
@@ -22,6 +22,7 @@ async function obtenerFixture(torneoId: number) {
     partidos: c.partidos.length,
     deGrupos: c.partidos.filter((p) => p.fase === 'grupos').length,
     iniciados: c.partidos.filter((p) => p.estado !== 'programado').length,
+    sinHora: c.partidos.filter((p) => p.estado === 'programado' && p.hora_programada === null).length,
   }))
 }
 
@@ -50,5 +51,19 @@ export function useMutacionesFixture() {
     return data
   }, CLAVES)
 
-  return { generar, borrar }
+  /** Cancha y hora a todos los pendientes desde el inicio del torneo (la base lo rechaza si ya empezó). */
+  const programar = useMutacionConfig(async (torneoId: number) => {
+    const { data, error } = await supabase.rpc('programar_horarios', { p_torneo: torneoId })
+    if (error) throw error
+    return data
+  }, CLAVES)
+
+  /** En pleno torneo: vuelve a programar los pendientes desde la hora del servidor. */
+  const reprogramar = useMutacionConfig(async (torneoId: number) => {
+    const { data, error } = await supabase.rpc('reprogramar_pendientes', { p_torneo: torneoId })
+    if (error) throw error
+    return data
+  }, CLAVES)
+
+  return { generar, borrar, programar, reprogramar }
 }

@@ -1,4 +1,4 @@
-import { CalendarPlus, Loader2, Lock, Trash2, TriangleAlert } from 'lucide-react'
+import { CalendarClock, CalendarPlus, Loader2, Lock, RefreshCw, Trash2, TriangleAlert } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useOutletContext } from 'react-router'
 import { toast } from 'sonner'
@@ -37,9 +37,10 @@ export default function Fixture() {
   const mut = useMutacionesFixture()
   const [aGenerar, setAGenerar] = useState<CategoriaFixture | null>(null)
   const [aBorrar, setABorrar] = useState<{ categoria: CategoriaFixture; clave: number } | null>(null)
+  const [horarios, setHorarios] = useState<'programar' | 'reprogramar' | null>(null)
 
   if (!torneo) return <p className="text-muted-foreground">Primero crea un torneo en la sección Torneo.</p>
-  const ocupado = mut.generar.isPending || mut.borrar.isPending
+  const ocupado = mut.generar.isPending || mut.borrar.isPending || mut.programar.isPending || mut.reprogramar.isPending
 
   const tarjeta = (c: CategoriaFixture) => {
     const listos = c.grupos.filter((g) => g.equipos >= 2).length
@@ -136,7 +137,7 @@ export default function Fixture() {
       <div className="flex flex-col gap-1">
         <h1 className="text-4xl">Fixture</h1>
         <p className="text-muted-foreground">
-          Crea los partidos de cada categoría con sus grupos. Los horarios se asignan después.
+          Crea los partidos de cada categoría con sus grupos y luego asigna los horarios del torneo, al final de la página.
         </p>
       </div>
 
@@ -152,8 +153,53 @@ export default function Fixture() {
           Primero crea las categorías, sus equipos y sus grupos.
         </p>
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2">{fixtureQ.data.map(tarjeta)}</ul>
+        <>
+          <ul className="grid gap-3 sm:grid-cols-2">{fixtureQ.data.map(tarjeta)}</ul>
+          <Horarios
+            categorias={fixtureQ.data}
+            activo={torneo.activo}
+            ocupado={ocupado}
+            pidiendo={mut.programar.isPending || mut.reprogramar.isPending}
+            pedir={setHorarios}
+          />
+        </>
       )}
+
+      <AlertDialog
+        open={horarios !== null}
+        onOpenChange={(abierto) => {
+          if (!abierto) setHorarios(null)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogTitle>
+            {horarios === 'reprogramar' ? '¿Reprogramar los pendientes desde ahora?' : '¿Programar los horarios?'}
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            {horarios === 'reprogramar'
+              ? 'Los partidos que faltan se reacomodan a partir de este momento, en las canchas abiertas y sin cruzarse con los que se están jugando.'
+              : 'Se asigna cancha y hora a todos los partidos pendientes, desde el primer día del torneo y dentro de la jornada.'}
+          </AlertDialogDescription>
+          <ul className="list-disc pl-5 text-sm font-semibold">
+            <li>Las horas y canchas que cambiaste a mano se pierden.</li>
+            {torneo.activo && <li>El público verá los horarios nuevos al instante.</li>}
+          </ul>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                const accion = horarios === 'reprogramar' ? mut.reprogramar : mut.programar
+                accion.mutate(torneo.id, {
+                  onSuccess: (n) =>
+                    toast.success(plural(n, 'partido programado', 'partidos programados'), { duration: 3000 }),
+                })
+              }}
+            >
+              {horarios === 'reprogramar' ? 'Reprogramar' : 'Programar'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog
         open={aGenerar !== null}
@@ -217,5 +263,78 @@ export default function Fixture() {
         />
       )}
     </div>
+  )
+}
+
+/** Horarios del torneo completo: programar desde el inicio o, ya empezado, reprogramar desde ahora. */
+function Horarios({
+  categorias,
+  activo,
+  ocupado,
+  pidiendo,
+  pedir,
+}: {
+  categorias: CategoriaFixture[]
+  activo: boolean
+  ocupado: boolean
+  pidiendo: boolean
+  pedir: (accion: 'programar' | 'reprogramar') => void
+}) {
+  const total = categorias.reduce((n, c) => n + c.partidos, 0)
+  const iniciados = categorias.reduce((n, c) => n + c.iniciados, 0)
+  const pendientes = total - iniciados
+  const sinHora = categorias.reduce((n, c) => n + c.sinHora, 0)
+  const empezo = iniciados > 0
+
+  return (
+    <section aria-labelledby="titulo-horarios" className="flex flex-col gap-3 rounded-lg border bg-surface-warm p-4">
+      <h2 id="titulo-horarios" className="text-2xl">
+        Horarios del torneo
+      </h2>
+      {total === 0 ? (
+        <p className="text-muted-foreground">Primero genera los partidos de las categorías.</p>
+      ) : (
+        <>
+          <p>
+            {plural(pendientes, 'partido pendiente', 'partidos pendientes')}
+            {sinHora > 0 && <span className="font-semibold">{`, ${plural(sinHora, 'sin horario', 'sin horario')}`}</span>}
+            {empezo && `; ${plural(iniciados, 'ya empezó o terminó', 'ya empezaron o terminaron')}`}.
+          </p>
+          {empezo ? (
+            <>
+              <Button
+                disabled={ocupado || pendientes === 0}
+                onClick={() => {
+                  pedir('reprogramar')
+                }}
+              >
+                {pidiendo ? <Loader2 aria-hidden className="animate-spin" /> : <RefreshCw aria-hidden />}
+                Reprogramar pendientes desde ahora
+              </Button>
+              <p className="text-sm text-muted-foreground">
+                Úsalo si hay retrasos o se cerró una cancha. Para mover un solo partido, edítalo en la agenda.
+              </p>
+            </>
+          ) : (
+            <>
+              <Button
+                disabled={ocupado || pendientes === 0}
+                onClick={() => {
+                  pedir('programar')
+                }}
+              >
+                {pidiendo ? <Loader2 aria-hidden className="animate-spin" /> : <CalendarClock aria-hidden />}
+                Programar horarios
+              </Button>
+              <p className="text-sm text-muted-foreground">
+                {activo
+                  ? 'Asigna cancha y hora a todos los pendientes. Este torneo es el que ve el público.'
+                  : 'Asigna cancha y hora a todos los pendientes respetando canchas, tipo de cancha y jornada.'}
+              </p>
+            </>
+          )}
+        </>
+      )}
+    </section>
   )
 }

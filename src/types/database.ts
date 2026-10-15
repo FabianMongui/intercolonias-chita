@@ -614,7 +614,31 @@ export type Database = {
         Args: { d: string; hf: string; hi: string; s: string }
         Returns: string
       }
+      crear_partido: {
+        Args: {
+          p_cancha?: number
+          p_categoria: number
+          p_etiqueta?: string
+          p_fase: string
+          p_grupo?: number
+          p_hora?: string
+          p_local?: number
+          p_visitante?: number
+        }
+        Returns: number
+      }
       duracion_slot: { Args: { p_categoria: number }; Returns: string }
+      editar_partido: {
+        Args: {
+          p_cambiar_equipos?: boolean
+          p_cancha?: number
+          p_hora?: string
+          p_id: number
+          p_local?: number
+          p_visitante?: number
+        }
+        Returns: undefined
+      }
       es_admin: { Args: never; Returns: boolean }
       es_super_admin: { Args: never; Returns: boolean }
       finalizar_partido: {

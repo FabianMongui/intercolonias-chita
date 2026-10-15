@@ -205,7 +205,7 @@ export default function Canchas() {
         <AlertDialogContent>
           <AlertDialogTitle>{`¿Cerrar ${aCerrar?.nombre ?? ''}?`}</AlertDialogTitle>
           <AlertDialogDescription>
-            {`No se le programarán partidos nuevos. ${plural(aCerrar?.pendientes ?? 0, 'El partido pendiente sigue', 'Los partidos pendientes siguen')} en esta cancha hasta que reprogrames los horarios.`}
+            {`No se le programarán partidos nuevos. ${plural(aCerrar?.pendientes ?? 0, 'partido sin terminar sigue', 'partidos sin terminar siguen')} en esta cancha hasta que reprogrames los horarios.`}
           </AlertDialogDescription>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>

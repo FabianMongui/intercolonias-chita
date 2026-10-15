@@ -217,7 +217,7 @@ export default function Agenda() {
                       )}
                     </span>
                     <span className="flex min-w-0 flex-1 flex-col">
-                      <span className="truncate font-semibold">
+                      <span className="font-semibold break-words">
                         {`${nombreEquipo(p.local, p.ref_local)} vs ${nombreEquipo(p.visitante, p.ref_visitante)}`}
                       </span>
                       <span className="truncate text-sm text-muted-foreground">

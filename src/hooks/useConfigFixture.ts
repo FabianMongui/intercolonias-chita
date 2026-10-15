@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useMutacionConfig } from '@/hooks/useMutacionConfig'
 import { supabase } from '@/lib/supabase'
 
-const CLAVES = ['fixture-config', 'grupos-config', 'categorias-config', 'canchas-config', 'partidos', 'posiciones', 'torneo-activo']
+const CLAVES = ['agenda-config', 'fixture-config', 'grupos-config', 'categorias-config', 'canchas-config', 'partidos', 'posiciones', 'torneo-activo']
 
 /** Por categoría: grupos, equipos y partidos, para generar o borrar el fixture. */
 async function obtenerFixture(torneoId: number) {

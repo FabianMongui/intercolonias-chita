@@ -74,7 +74,7 @@ export default function Fixture() {
             <ul className="flex flex-col gap-1 text-sm">
               {lineas.map((l) => (
                 <li key={l} className="flex items-start gap-2">
-                  <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0 text-gold" />
+                  <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0 text-gold-foreground" />
                   {l}
                 </li>
               ))}

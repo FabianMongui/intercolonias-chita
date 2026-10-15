@@ -3,7 +3,7 @@ import type { TipoCancha } from '@/components/admin/SelectorTipoCancha'
 import { useMutacionConfig } from '@/hooks/useMutacionConfig'
 import { supabase } from '@/lib/supabase'
 
-const CLAVES = ['categorias-config', 'torneo-activo', 'partidos']
+const CLAVES = ['agenda-config', 'categorias-config', 'fixture-config', 'grupos-config', 'torneo-activo', 'partidos']
 
 async function obtenerCategorias(torneoId: number) {
   const { data, error } = await supabase

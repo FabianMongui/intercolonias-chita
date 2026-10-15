@@ -599,12 +599,46 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      advertencias_torneo: {
+        Args: { p_torneo: number }
+        Returns: {
+          categoria_id: number
+          mensaje: string
+          otro_partido_id: number | null
+          partido_id: number
+          tipo: string
+        }[]
+      }
       ahora: { Args: never; Returns: string }
       ajustar_jornada: {
         Args: { d: string; hf: string; hi: string; s: string }
         Returns: string
       }
+      crear_partido: {
+        Args: {
+          p_cancha?: number
+          p_categoria: number
+          p_etiqueta?: string
+          p_fase: string
+          p_grupo?: number
+          p_hora?: string
+          p_local?: number
+          p_visitante?: number
+        }
+        Returns: number
+      }
       duracion_slot: { Args: { p_categoria: number }; Returns: string }
+      editar_partido: {
+        Args: {
+          p_cambiar_equipos?: boolean
+          p_cancha?: number
+          p_hora?: string
+          p_id: number
+          p_local?: number
+          p_visitante?: number
+        }
+        Returns: undefined
+      }
       es_admin: { Args: never; Returns: boolean }
       es_super_admin: { Args: never; Returns: boolean }
       finalizar_partido: {
@@ -648,6 +682,10 @@ export type Database = {
       }
       ganador: {
         Args: { p: Database["public"]["Tables"]["partidos"]["Row"] }
+        Returns: number
+      }
+      borrar_partidos_categoria: {
+        Args: { p_categoria: number }
         Returns: number
       }
       generar_partidos_categoria: {
@@ -798,6 +836,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      reprogramar_pendientes: { Args: { p_torneo: number }; Returns: number }
       reprogramar_partido: {
         Args: { p_cancha?: number; p_hora?: string; p_id: number }
         Returns: {
@@ -838,6 +877,7 @@ export type Database = {
         Args: { p_categoria: number; p_ref: string }
         Returns: number
       }
+      sortear_grupos: { Args: { p_categoria: number }; Returns: number }
     }
     Enums: {
       [_ in never]: never

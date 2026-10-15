@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useMutacionConfig } from '@/hooks/useMutacionConfig'
 import { supabase } from '@/lib/supabase'
 
-const CLAVES = ['canchas-config', 'torneo-activo', 'partidos', 'categorias-config']
+const CLAVES = ['agenda-config', 'canchas-config', 'torneo-activo', 'partidos', 'categorias-config']
 
 async function obtenerCanchas(torneoId: number) {
   const { data, error } = await supabase

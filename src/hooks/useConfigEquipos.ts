@@ -3,7 +3,7 @@ import { useMutacionConfig } from '@/hooks/useMutacionConfig'
 import { prepararEscudo, slugArchivo } from '@/lib/escudo-imagen'
 import { supabase } from '@/lib/supabase'
 
-const CLAVES = ['equipos-config', 'equipo-config', 'equipos', 'equipo', 'categorias-config', 'partidos', 'posiciones', 'goleadores']
+const CLAVES = ['agenda-config', 'equipos-config', 'fixture-config', 'grupos-config', 'equipo-config', 'equipos', 'equipo', 'categorias-config', 'partidos', 'posiciones', 'goleadores']
 const BUCKET = 'escudos'
 
 export function useEquiposConfig(categoriaId: number | undefined) {

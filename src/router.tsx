@@ -91,6 +91,18 @@ export const router = createBrowserRouter([
                 path: 'equipos/:id',
                 lazy: async () => ({ Component: (await import('@/pages/admin/config/EquipoConfig')).default }),
               },
+              {
+                path: 'grupos',
+                lazy: async () => ({ Component: (await import('@/pages/admin/config/Grupos')).default }),
+              },
+              {
+                path: 'fixture',
+                lazy: async () => ({ Component: (await import('@/pages/admin/config/Fixture')).default }),
+              },
+              {
+                path: 'agenda',
+                lazy: async () => ({ Component: (await import('@/pages/admin/config/Agenda')).default }),
+              },
             ],
           },
           {

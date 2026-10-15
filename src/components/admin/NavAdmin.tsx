@@ -8,6 +8,9 @@ const SECCIONES = [
   { ruta: '/admin/canchas', texto: 'Canchas' },
   { ruta: '/admin/categorias', texto: 'Categorías' },
   { ruta: '/admin/equipos', texto: 'Equipos' },
+  { ruta: '/admin/grupos', texto: 'Grupos' },
+  { ruta: '/admin/fixture', texto: 'Fixture' },
+  { ruta: '/admin/agenda', texto: 'Agenda' },
 ]
 
 /** "Partidos" abarca la lista (/admin) y el control de cada partido (/admin/partido/:id). */
@@ -22,11 +25,11 @@ export function NavAdmin() {
   const lista = useRef<HTMLUListElement>(null)
   // En el celular no caben todas: la pestaña activa se desplaza hasta quedar visible.
   useEffect(() => {
-    lista.current?.querySelector('[aria-current=page]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+    lista.current?.querySelector('[aria-current=page]')?.scrollIntoView({ block: 'nearest', inline: 'center' })
   }, [pathname])
   return (
     <nav aria-label="Secciones del panel" className="border-b bg-surface">
-      <ul ref={lista} className="mx-auto flex max-w-screen-lg overflow-x-auto px-2 [scrollbar-width:none]">
+      <ul ref={lista} className="mx-auto flex max-w-screen-lg overflow-x-auto px-2 pr-10 [scrollbar-width:none] [mask-image:linear-gradient(to_right,#000_calc(100%-2.5rem),transparent)] sm:pr-2 sm:[mask-image:none]">
         {SECCIONES.map(({ ruta, texto }) => {
           const activa = estaActiva(ruta, pathname)
           return (

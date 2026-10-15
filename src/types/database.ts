@@ -812,6 +812,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      reprogramar_pendientes: { Args: { p_torneo: number }; Returns: number }
       reprogramar_partido: {
         Args: { p_cancha?: number; p_hora?: string; p_id: number }
         Returns: {

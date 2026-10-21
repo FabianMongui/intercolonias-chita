@@ -14,7 +14,7 @@ resultados en vivo, tablas, llaves, goleadores, y panel de administración desde
 
 ## Stack
 **Últimas versiones estables** al crear el proyecto (verificar con `npm view <paquete> version`, nada de copiar versiones del package.json viejo): Vite + React + TypeScript + Tailwind CSS · supabase-js v2 · TanStack Query · React Router ·
-shadcn/ui · lucide-react · @dnd-kit (solo arrastre en escritorio) · Firebase Hosting (`inter-colonias.web.app`).
+shadcn/ui · lucide-react · @dnd-kit/core (arrastrar equipos en Grupos; en celular dejando el dedo apretado) · Firebase Hosting (`inter-colonias.web.app`).
 
 ## Reglas
 1. **Nada de lógica de negocio en el frontend.** Posiciones, goleadores, marcador, llaves, fixture, horarios

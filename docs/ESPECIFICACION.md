@@ -114,6 +114,7 @@ Errores de RPC vienen con mensajes en español → mostrarlos tal cual en un toa
 - `anon`: solo lectura de todo menos `perfiles`.
 - `admin` activo: todas las acciones del partido **vía RPC** (iniciar, goles, medio tiempo, finalizar, `reprogramar_partido`) y escribir/borrar `eventos`. Sin UPDATE directo sobre `partidos` (migración 08).
 - `super_admin` activo: todo (config, equipos, jugadores, grupos, crear/editar/borrar partidos con UPDATE directo, perfiles, escudos).
+- Nadie puede cambiar su propio rol ni desactivarse, y siempre debe quedar al menos un super admin activo (triggers en `perfiles`, migración 20). Desde el editor SQL de Supabase no aplica la primera regla.
 - Registro público **desactivado** en Auth. Los usuarios se crean desde el panel de Supabase
   (Authentication → Users → Add user, "Auto Confirm"); el perfil nace inactivo y el super admin lo activa.
 

@@ -103,6 +103,10 @@ export const router = createBrowserRouter([
                 path: 'agenda',
                 lazy: async () => ({ Component: (await import('@/pages/admin/config/Agenda')).default }),
               },
+              {
+                path: 'usuarios',
+                lazy: async () => ({ Component: (await import('@/pages/admin/config/Usuarios')).default }),
+              },
             ],
           },
           {

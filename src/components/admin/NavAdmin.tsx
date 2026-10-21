@@ -11,6 +11,7 @@ const SECCIONES = [
   { ruta: '/admin/grupos', texto: 'Grupos' },
   { ruta: '/admin/fixture', texto: 'Fixture' },
   { ruta: '/admin/agenda', texto: 'Agenda' },
+  { ruta: '/admin/usuarios', texto: 'Usuarios' },
 ]
 
 /** "Partidos" abarca la lista (/admin) y el control de cada partido (/admin/partido/:id). */

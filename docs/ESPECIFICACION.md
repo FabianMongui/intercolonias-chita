@@ -188,9 +188,10 @@ activa". Ruta protegida; botón de cerrar sesión; cambiar mi contraseña (`supa
    - Vista tipo agenda por cancha y día; editar a mano hora, cancha y equipos de cualquier partido pendiente.
    - **Advertencias**: partidos después de `fecha_fin` o fuera de jornada, mismo equipo en horarios solapados,
      cancha inactiva con partidos pendientes.
-7. **Usuarios**: lista de perfiles (activar/desactivar, rol, cancha sugerida). Crear usuario y restablecer contraseña
-   requieren la service key → **Edge Function** `admin-usuarios` que verifica que quien llama es super_admin
-   (Fase 5). Mientras tanto se hace desde el panel de Supabase.
+7. **Usuarios**: lista de perfiles con correo (activar/desactivar con confirmación, rol, cancha sugerida). Crear usuario,
+   darle una contraseña nueva y borrarlo requieren la secret key → **Edge Function** `admin-usuarios`
+   (`supabase/functions/admin-usuarios`), que verifica que quien llama es super admin activo. La contraseña temporal se
+   muestra una sola vez para pasársela a la persona (no se envían correos). Nadie se borra ni se desactiva a sí mismo.
 
 ## 5. Diseño (skill ui-ux-pro-max + componentes base)
 

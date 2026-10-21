@@ -201,8 +201,8 @@ Chitana (`public/assets/Chita.png`, verde y amarillo). Valores medidos sobre la 
 
 | Token | Hex | Uso | Contraste |
 |---|---|---|---|
-| `--verde` | `#018D36` | Primario: encabezados, chips activos, fondos grandes | blanco encima 4.3:1 → solo texto grande (≥ 24px o 19px bold) |
-| `--verde-oscuro` | `#016B29` | Botones con texto, links, foco | blanco encima 6.7:1 ✅ |
+| `--verde` | `#018D36` | Primario: chips activos, fondos grandes, gráficos | blanco encima 4.3:1 → solo texto grande (≥ 24px o 19px bold) |
+| `--verde-oscuro` | `#016B29` | Cabeceras (llevan texto blanco pequeño), botones con texto, links, foco | blanco encima 6.7:1 ✅ |
 | `--verde-claro` | `#3CA93E` | Acentos secundarios, gráficos | — |
 | `--amarillo` | `#FCC000` | Acento/CTA, campeón, resaltar marcador | **texto oscuro encima** (`--cafe` 9.9:1). Nunca blanco sobre amarillo |
 | `--dorado` | `#D49F37` | Detalles (llaves, final, trofeo, bordes) | decorativo |

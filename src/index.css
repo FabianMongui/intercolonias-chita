@@ -139,7 +139,7 @@
   --primary-hover: color-mix(in oklab, var(--color-verde-oscuro) 85%, black);
 
   /* Marca: verde del escudo para fondos grandes (header). Blanco encima solo texto grande. */
-  --brand: var(--color-verde);
+  --brand: var(--color-verde-oscuro); /* cabeceras: texto blanco pequeño necesita 4.5:1 (verde da 4.3) */
   --brand-foreground: #ffffff;
 
   --secondary: #f3f4f6;

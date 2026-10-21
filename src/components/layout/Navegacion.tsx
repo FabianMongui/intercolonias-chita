@@ -71,7 +71,7 @@ export function NavSuperior() {
               className={({ isActive }) =>
                 cn(
                   'flex min-h-11 items-center rounded-md px-3 font-semibold transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-brand-foreground',
-                  isActive ? 'bg-accent text-accent-foreground' : 'text-brand-foreground hover:bg-primary',
+                  isActive ? 'bg-accent text-accent-foreground' : 'text-brand-foreground hover:bg-primary-hover',
                 )
               }
             >

@@ -107,6 +107,10 @@ export const router = createBrowserRouter([
                 path: 'usuarios',
                 lazy: async () => ({ Component: (await import('@/pages/admin/config/Usuarios')).default }),
               },
+              {
+                path: 'clubes',
+                lazy: async () => ({ Component: (await import('@/pages/admin/config/Clubes')).default }),
+              },
             ],
           },
           {

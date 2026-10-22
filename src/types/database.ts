@@ -14,6 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
+      ajustes: {
+        Row: {
+          historial_publico: boolean
+          id: number
+        }
+        Insert: {
+          historial_publico?: boolean
+          id?: number
+        }
+        Update: {
+          historial_publico?: boolean
+          id?: number
+        }
+        Relationships: []
+      }
+      campeones_historicos: {
+        Row: {
+          anio: number
+          campeon_club_id: number
+          categoria: string
+          created_at: string
+          id: number
+          marcador_final: string | null
+          nota: string | null
+          subcampeon_club_id: number | null
+          tipo_torneo: string
+        }
+        Insert: {
+          anio: number
+          campeon_club_id: number
+          categoria: string
+          created_at?: string
+          id?: never
+          marcador_final?: string | null
+          nota?: string | null
+          subcampeon_club_id?: number | null
+          tipo_torneo?: string
+        }
+        Update: {
+          anio?: number
+          campeon_club_id?: number
+          categoria?: string
+          created_at?: string
+          id?: never
+          marcador_final?: string | null
+          nota?: string | null
+          subcampeon_club_id?: number | null
+          tipo_torneo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campeones_historicos_campeon_club_id_fkey"
+            columns: ["campeon_club_id"]
+            isOneToOne: false
+            referencedRelation: "clubes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campeones_historicos_campeon_club_id_fkey"
+            columns: ["campeon_club_id"]
+            isOneToOne: false
+            referencedRelation: "titulos_por_club"
+            referencedColumns: ["club_id"]
+          },
+          {
+            foreignKeyName: "campeones_historicos_subcampeon_club_id_fkey"
+            columns: ["subcampeon_club_id"]
+            isOneToOne: false
+            referencedRelation: "clubes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campeones_historicos_subcampeon_club_id_fkey"
+            columns: ["subcampeon_club_id"]
+            isOneToOne: false
+            referencedRelation: "titulos_por_club"
+            referencedColumns: ["club_id"]
+          },
+        ]
+      }
       canchas: {
         Row: {
           activa: boolean
@@ -97,9 +177,31 @@ export type Database = {
           },
         ]
       }
+      clubes: {
+        Row: {
+          created_at: string
+          escudo_path: string | null
+          id: number
+          nombre: string
+        }
+        Insert: {
+          created_at?: string
+          escudo_path?: string | null
+          id?: never
+          nombre: string
+        }
+        Update: {
+          created_at?: string
+          escudo_path?: string | null
+          id?: never
+          nombre?: string
+        }
+        Relationships: []
+      }
       equipos: {
         Row: {
           categoria_id: number
+          club_id: number | null
           created_at: string
           escudo_path: string | null
           grupo_id: number | null
@@ -109,6 +211,7 @@ export type Database = {
         }
         Insert: {
           categoria_id: number
+          club_id?: number | null
           created_at?: string
           escudo_path?: string | null
           grupo_id?: number | null
@@ -118,6 +221,7 @@ export type Database = {
         }
         Update: {
           categoria_id?: number
+          club_id?: number | null
           created_at?: string
           escudo_path?: string | null
           grupo_id?: number | null
@@ -132,6 +236,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "categorias"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipos_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipos_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "titulos_por_club"
+            referencedColumns: ["club_id"]
           },
           {
             foreignKeyName: "equipos_grupo_id_fkey"
@@ -483,6 +601,7 @@ export type Database = {
         Row: {
           activo: boolean
           created_at: string
+          cuenta_en_historial: boolean
           fecha_fin: string
           fecha_inicio: string
           hora_fin_jornada: string
@@ -495,6 +614,7 @@ export type Database = {
         Insert: {
           activo?: boolean
           created_at?: string
+          cuenta_en_historial?: boolean
           fecha_fin: string
           fecha_inicio: string
           hora_fin_jornada?: string
@@ -507,6 +627,7 @@ export type Database = {
         Update: {
           activo?: boolean
           created_at?: string
+          cuenta_en_historial?: boolean
           fecha_fin?: string
           fecha_inicio?: string
           hora_fin_jornada?: string
@@ -540,6 +661,23 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      palmares: {
+        Row: {
+          anio: number | null
+          campeon_club_id: number | null
+          campeon_escudo_path: string | null
+          campeon_nombre: string | null
+          categoria: string | null
+          marcador_final: string | null
+          origen: string | null
+          subcampeon_club_id: number | null
+          subcampeon_escudo_path: string | null
+          subcampeon_nombre: string | null
+          tipo_torneo: string | null
+          torneo_id: number | null
+        }
+        Relationships: []
       }
       posiciones: {
         Row: {
@@ -576,6 +714,15 @@ export type Database = {
           },
         ]
       }
+      titulos_por_club: {
+        Row: {
+          club_id: number | null
+          escudo_path: string | null
+          nombre: string | null
+          titulos: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       activar_torneo: {
@@ -604,6 +751,7 @@ export type Database = {
         Returns: {
           categoria_id: number
           mensaje: string
+          // Override manual: el generador lo da como number, pero solo viene en 'equipo_solapado'.
           otro_partido_id: number | null
           partido_id: number
           tipo: string

@@ -36,6 +36,7 @@ const AVISO_CORTO: Record<string, string> = {
   sin_hora: 'Sin hora',
   cancha_incompatible: 'Cancha no válida para la categoría',
   eliminatoria_antes_de_grupos: 'Antes de que terminen los grupos',
+  debio_empezar: 'Ya debió empezar',
 }
 
 /** Agenda del torneo por día y cancha: editar a mano los partidos pendientes y agregar partidos (§4.2 super admin 6). */

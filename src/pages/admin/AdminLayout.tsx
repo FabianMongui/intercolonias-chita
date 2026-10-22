@@ -112,9 +112,9 @@ export default function AdminLayout() {
       <Marco>
         <section className="flex flex-col items-start gap-3">
           <title>Cuenta inactiva · Intercolonias Chita</title>
-          <h1 className="text-4xl">Tu cuenta aún no está activa</h1>
+          <h1 className="text-4xl">Tu cuenta no está activa</h1>
           <p className="text-muted-foreground">
-            Pídele al super admin del torneo que la active. Cuando lo haga, toca “Revisar de nuevo”.
+            Puede ser una cuenta nueva o que la hayan desactivado. Pídele al super admin del torneo que la active y luego toca “Revisar de nuevo”.
           </p>
           <div className="flex flex-wrap gap-3">
             <Button onClick={() => void perfilQ.refetch()} disabled={perfilQ.isRefetching}>

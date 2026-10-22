@@ -6,7 +6,7 @@ resultados en vivo, tablas, llaves, goleadores, y panel de administración desde
 **Lee primero `docs/ESPECIFICACION.md`.** Es la fuente de verdad del proyecto.
 
 ## Estado
-- **Fases 0 a 3 cerradas** (PR #1 a #4): parte pública con tiempo real, panel del admin de cancha y configuración del super admin en
+- **Fases 0 a 4 cerradas** (PR #1 a #5): parte pública con tiempo real, panel del admin de cancha, configuración del super admin y fixture/horarios/agenda en
   `inter-colonias.web.app`. Del prototipo viejo solo quedan los logos en `public/assets/`.
 - La **base de datos ya está construida y probada** en Supabase (proyecto `database-colonias`,
   ref `kewjmzqiuggpdodnzbvp`): tablas, RLS, vistas, funciones RPC, Realtime y Storage. No rediseñarla;
@@ -14,7 +14,7 @@ resultados en vivo, tablas, llaves, goleadores, y panel de administración desde
 
 ## Stack
 **Últimas versiones estables** al crear el proyecto (verificar con `npm view <paquete> version`, nada de copiar versiones del package.json viejo): Vite + React + TypeScript + Tailwind CSS · supabase-js v2 · TanStack Query · React Router ·
-shadcn/ui · lucide-react · @dnd-kit (solo arrastre en escritorio) · Firebase Hosting (`inter-colonias.web.app`).
+shadcn/ui · lucide-react · @dnd-kit/core (arrastrar equipos en Grupos; en celular dejando el dedo apretado) · Firebase Hosting (`inter-colonias.web.app`).
 
 ## Reglas
 1. **Nada de lógica de negocio en el frontend.** Posiciones, goleadores, marcador, llaves, fixture, horarios

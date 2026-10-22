@@ -212,15 +212,15 @@ export default function ControlPartido() {
                   key={lado}
                   variant="accent"
                   disabled={ocupado}
-                  className="h-auto min-h-20 flex-col gap-0 px-2 py-2 text-lg"
+                  className="h-auto min-h-16 flex-col gap-0 px-2 py-1.5 text-base"
                   onClick={() => {
                     setAperturasHoja((n) => n + 1)
                     setLadoHoja(lado)
                     setHojaGol(lado)
                   }}
                 >
-                  <span className="flex items-center gap-1 font-display text-3xl leading-none">
-                    <Plus aria-hidden className="size-6" /> Gol
+                  <span className="flex items-center gap-1 font-display text-2xl leading-none">
+                    <Plus aria-hidden className="size-5" /> Gol
                   </span>
                   <span className="max-w-full truncate text-sm">{nombre(lado)}</span>
                 </Button>
@@ -433,8 +433,8 @@ function BotonAccion({
   onClick: () => void
 }) {
   return (
-    <Button variant={variante} className="h-16 w-full text-xl" {...props}>
-      {cargando && <Loader2 aria-hidden className="size-6 animate-spin" />}
+    <Button variant={variante} className="h-11 w-full text-base" {...props}>
+      {cargando && <Loader2 aria-hidden className="size-5 animate-spin" />}
       {children}
     </Button>
   )
@@ -676,7 +676,7 @@ function ControlCargando() {
     <div className="flex flex-col gap-6" aria-busy="true" aria-label="Cargando partido">
       <Skeleton className="h-11 w-48" />
       <Skeleton className="h-64 w-full rounded-2xl" />
-      <Skeleton className="h-16 w-full" />
+      <Skeleton className="h-11 w-full" />
     </div>
   )
 }

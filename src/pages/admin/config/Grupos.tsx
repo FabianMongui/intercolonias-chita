@@ -1,5 +1,17 @@
+import {
+  DndContext,
+  type DragEndEvent,
+  type UniqueIdentifier,
+  DragOverlay,
+  MouseSensor,
+  TouchSensor,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
 import { ArrowDownToLine, Check, Lock, Plus, Shuffle, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { type ComponentProps, type ReactNode, useState } from 'react'
 import { useOutletContext, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { ErrorDatos } from '@/components/EstadosPagina'
@@ -25,7 +37,9 @@ const plural = (n: number, uno: string, varios: string) => `${String(n)} ${n ===
 
 /**
  * Bombos (§4.2 super admin 5): grupos de cada categoría. Se arman a mano (tocar un equipo y luego
- * el grupo destino), con sorteo de los que faltan, o combinando: cabezas de serie a mano y sorteo del resto.
+ * el grupo destino, o arrastrarlo), con sorteo de los que faltan, o combinando: cabezas de serie a mano y sorteo del resto.
+ * Arrastrar: con el mouse basta moverlo unos píxeles; en el celular, dejar el dedo apretado medio segundo (un toque
+ * corto sigue eligiendo el equipo). Con teclado se usa "tocar y tocar" (Enter en el equipo y luego en el grupo).
  */
 export default function Grupos() {
   const { torneo } = useOutletContext<ContextoConfig>()
@@ -38,14 +52,18 @@ export default function Grupos() {
   const [elegido, setElegido] = useState<EquipoBombo | null>(null)
   const [sorteo, setSorteo] = useState(false)
   const [grupoABorrar, setGrupoABorrar] = useState<{ id: number; nombre: string; equipos: number } | null>(null)
+  const [arrastrado, setArrastrado] = useState<EquipoBombo | null>(null)
+  const sensores = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 500, tolerance: 8 } }),
+  )
 
   if (!torneo) return <p className="text-muted-foreground">Primero crea un torneo en la sección Torneo.</p>
 
   const ocupado = mut.moverEquipo.isPending || mut.crearGrupo.isPending || mut.borrarGrupo.isPending || mut.sortear.isPending
 
-  const mover = (grupoId: number | null, destino: string) => {
-    if (!elegido) return
-    const equipo = elegido
+  const mover = (equipo: EquipoBombo | null, grupoId: number | null, destino: string) => {
+    if (!equipo || equipo.grupo_id === grupoId) return
     setElegido(null)
     mut.moverEquipo.mutate(
       { equipoId: equipo.id, grupoId },
@@ -80,22 +98,14 @@ export default function Grupos() {
       }
       return (
         <li key={e.id}>
-          <button
-            type="button"
+          <ChipEquipo
+            equipo={e}
+            activo={activo}
             disabled={ocupado}
-            aria-pressed={activo}
             onClick={() => {
               setElegido(activo ? null : e)
             }}
-            className={cn(
-              'flex min-h-11 items-center gap-2 rounded-full border bg-card py-1 pr-4 pl-1 text-left font-semibold transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-60',
-              activo ? 'border-primary bg-primary text-primary-foreground' : 'hover:bg-muted',
-            )}
-          >
-            <Escudo nombre={e.nombre} path={e.escudo_path} tamano="sm" />
-            {e.nombre}
-            {activo && <Check aria-hidden className="size-4" />}
-          </button>
+          />
         </li>
       )
     }
@@ -107,8 +117,46 @@ export default function Grupos() {
         </Button>
       )
 
+    const nombreEquipo = (id: UniqueIdentifier) => equipos.find((e) => e.id === id)?.nombre ?? 'el equipo'
+    const nombreZona = (id: UniqueIdentifier) =>
+      id === 'sin-grupo' ? 'Sin grupo' : `Grupo ${grupos.find((g) => `grupo-${String(g.id)}` === id)?.nombre ?? ''}`
+    const soltar = ({ active, over }: DragEndEvent) => {
+      setArrastrado(null)
+      if (!over) return
+      const equipo = equipos.find((e) => e.id === active.id) ?? null
+      if (over.id === 'sin-grupo') {
+        mover(equipo, null, 'Sin grupo')
+        return
+      }
+      const grupo = grupos.find((g) => `grupo-${String(g.id)}` === over.id)
+      if (grupo) mover(equipo, grupo.id, `Grupo ${grupo.nombre}`)
+    }
+
     return (
-      <>
+      <DndContext
+        sensors={sensores}
+        accessibility={{
+          screenReaderInstructions: {
+            draggable: 'Para mover un equipo, actívalo y luego activa el botón "Mover aquí" del grupo.',
+          },
+          announcements: {
+            onDragStart: ({ active }) => `Moviendo ${nombreEquipo(active.id)}.`,
+            onDragOver: ({ active, over }) =>
+              over ? `${nombreEquipo(active.id)} sobre ${nombreZona(over.id)}.` : `${nombreEquipo(active.id)} fuera de los grupos.`,
+            onDragEnd: ({ active, over }) =>
+              over ? `${nombreEquipo(active.id)} soltado en ${nombreZona(over.id)}.` : `${nombreEquipo(active.id)} vuelve a su lugar.`,
+            onDragCancel: ({ active }) => `Se canceló mover ${nombreEquipo(active.id)}.`,
+          },
+        }}
+        onDragStart={({ active }) => {
+          setElegido(null)
+          setArrastrado(equipos.find((e) => e.id === active.id) ?? null)
+        }}
+        onDragCancel={() => {
+          setArrastrado(null)
+        }}
+        onDragEnd={soltar}
+      >
         {cerrado && (
           <p className="flex items-start gap-2 rounded-lg border bg-surface-warm p-3 text-sm">
             <Lock aria-hidden className="mt-0.5 size-4 shrink-0" />
@@ -152,18 +200,18 @@ export default function Grupos() {
           <p aria-live="polite" className="text-sm text-muted-foreground">
             {elegido
               ? `${elegido.nombre} elegido. Toca el grupo donde va, o tócalo otra vez para soltarlo.`
-              : 'Toca un equipo y luego el grupo donde va. Puedes fijar a mano los cabezas de serie y sortear el resto.'}
+              : 'Toca un equipo y luego el grupo donde va, o arrástralo (en el celular, déjalo apretado un momento). Puedes fijar a mano los cabezas de serie y sortear el resto.'}
           </p>
         )}
 
-        <section aria-labelledby="titulo-sin-grupo" className="flex flex-col gap-3 rounded-lg border border-dashed bg-surface p-3">
+        <ZonaSoltar id="sin-grupo" aria-labelledby="titulo-sin-grupo" className="flex flex-col gap-3 rounded-lg border border-dashed bg-surface p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 id="titulo-sin-grupo" className="text-2xl">
               {`Sin grupo (${String(sinGrupo.length)})`}
             </h2>
             {elegido?.grupo_id != null &&
               destino('Quitar del grupo', () => {
-                mover(null, 'Sin grupo')
+                mover(elegido, null, 'Sin grupo')
               })}
           </div>
           {equipos.length === 0 ? (
@@ -173,7 +221,7 @@ export default function Grupos() {
           ) : (
             <ul className="flex flex-wrap gap-2">{sinGrupo.map(chip)}</ul>
           )}
-        </section>
+        </ZonaSoltar>
 
         {grupos.length === 0 ? (
           <p className="rounded-lg border border-dashed bg-surface p-4 text-muted-foreground">
@@ -185,7 +233,11 @@ export default function Grupos() {
               const delGrupo = equipos.filter((e) => e.grupo_id === g.id)
               return (
                 <li key={g.id}>
-                  <section aria-labelledby={`grupo-${String(g.id)}`} className="flex flex-col gap-3 rounded-lg border bg-card p-3">
+                  <ZonaSoltar
+                    id={`grupo-${String(g.id)}`}
+                    aria-labelledby={`grupo-${String(g.id)}`}
+                    className="flex flex-col gap-3 rounded-lg border bg-card p-3"
+                  >
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 id={`grupo-${String(g.id)}`} className="text-2xl">
                         {`Grupo ${g.nombre}`}
@@ -210,19 +262,23 @@ export default function Grupos() {
                     {elegido &&
                       elegido.grupo_id !== g.id &&
                       destino(`Mover aquí (Grupo ${g.nombre})`, () => {
-                        mover(g.id, `Grupo ${g.nombre}`)
+                        mover(elegido, g.id, `Grupo ${g.nombre}`)
                       })}
                     {delGrupo.length === 0 ? (
                       <p className="text-sm text-muted-foreground">Sin equipos.</p>
                     ) : (
                       <ul className="flex flex-wrap gap-2">{delGrupo.map(chip)}</ul>
                     )}
-                  </section>
+                  </ZonaSoltar>
                 </li>
               )
             })}
           </ul>
         )}
+
+        <DragOverlay dropAnimation={null}>
+          {arrastrado && <ChipFlotante equipo={arrastrado} />}
+        </DragOverlay>
 
         <AlertDialog open={sorteo} onOpenChange={setSorteo}>
           <AlertDialogContent>
@@ -275,7 +331,7 @@ export default function Grupos() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </>
+      </DndContext>
     )
   }
 
@@ -305,5 +361,63 @@ export default function Grupos() {
         </>
       )}
     </div>
+  )
+}
+
+/** Chip de un equipo: se toca para elegirlo o se arrastra (mouse, o dedo apretado en el celular). */
+function ChipEquipo({
+  equipo,
+  activo,
+  disabled = false,
+  onClick,
+}: {
+  equipo: EquipoBombo
+  activo: boolean
+  disabled?: boolean
+  onClick?: () => void
+}) {
+  const { listeners, setNodeRef, isDragging } = useDraggable({ id: equipo.id, disabled })
+  // Sin los atributos de teclado/ARIA de dnd-kit (attributes): con teclado se usa "tocar y tocar" (aria-pressed).
+  return (
+    <button
+      ref={setNodeRef}
+      type="button"
+      disabled={disabled}
+      aria-pressed={activo}
+      onClick={onClick}
+      {...listeners}
+      className={cn(
+        'flex min-h-11 touch-manipulation items-center gap-2 rounded-full border bg-card py-1 pr-4 pl-1 text-left font-semibold transition-colors select-none [-webkit-touch-callout:none] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-60',
+        activo ? 'border-primary bg-primary text-primary-foreground' : 'hover:bg-muted',
+        isDragging && 'opacity-40',
+      )}
+    >
+      <Escudo nombre={equipo.nombre} path={equipo.escudo_path} tamano="sm" />
+      {equipo.nombre}
+      {activo && <Check aria-hidden className="size-4" />}
+    </button>
+  )
+}
+
+/** Copia del chip que sigue al dedo o al mouse mientras se arrastra (solo visual). */
+function ChipFlotante({ equipo }: { equipo: EquipoBombo }) {
+  return (
+    <div
+      aria-hidden
+      className="flex min-h-11 cursor-grabbing items-center gap-2 rounded-full border border-primary bg-primary py-1 pr-4 pl-1 font-semibold text-primary-foreground shadow-lg"
+    >
+      <Escudo nombre={equipo.nombre} path={equipo.escudo_path} tamano="sm" />
+      {equipo.nombre}
+    </div>
+  )
+}
+
+/** Sección donde se puede soltar un equipo; se resalta cuando el equipo arrastrado está encima. */
+function ZonaSoltar({ id, className, children, ...props }: ComponentProps<'section'> & { id: string; children: ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({ id })
+  return (
+    <section ref={setNodeRef} className={cn(className, isOver && 'ring-3 ring-primary ring-offset-2')} {...props}>
+      {children}
+    </section>
   )
 }

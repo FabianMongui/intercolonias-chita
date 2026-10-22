@@ -105,7 +105,7 @@ exportarlas a `supabase/migrations/` (con el MCP de Supabase o `supabase db pull
 | `borrar_partidos_categoria(p_categoria)` | super admin | Borra todos los partidos de la categoría para regenerar el fixture; falla si alguno ya inició o terminó (migración 15) |
 | `programar_horarios(p_torneo, p_desde?)` | super admin | Asigna cancha y hora a **todos los partidos pendientes** respetando: canchas activas, tipo/cancha fija, jornada, un equipo no juega dos partidos a la vez, eliminatorias después de grupos. Sin `p_desde` arranca al inicio del torneo y **falla si algún partido ya no está `programado`** (migración 16); con `p_desde` sirve para reprogramar en pleno torneo (la app usa `reprogramar_pendientes`). Los partidos en vivo no se mueven y su cancha queda ocupada hasta `inicio_real` + duración. ⚠️ Sobrescribe ediciones manuales de pendientes → confirmar |
 | `reprogramar_pendientes(p_torneo)` | super admin | Llama `programar_horarios(p_torneo, now())` con la hora **del servidor** (la app nunca manda la hora del celular). Devuelve cuántos partidos programó (migración 16). ⚠️ Confirmar |
-| `advertencias_torneo(p_torneo)` | autenticados (solo lectura) | Lista de advertencias de partidos no finalizados: `tipo` (`fuera_de_fecha`, `fuera_de_jornada`, `equipo_solapado`, `cancha_cerrada`, `sin_cancha`, `sin_hora`, `cancha_incompatible`, `eliminatoria_antes_de_grupos`), `partido_id`, `otro_partido_id?` (solo en solapados), `categoria_id`, `mensaje` (español, horas en Bogotá). Hora de referencia `coalesce(hora_estimada, hora_programada)` (en vivo: `inicio_real`); duración 2×tiempo + descanso. En eliminatorias sin equipos resueltos el mensaje usa `etiqueta` (o el nombre de la fase). `eliminatoria_antes_de_grupos`: eliminatoria que empieza antes del fin del último partido de grupos pendiente de su categoría. Ordenada por hora (migraciones 11 y 12) |
+| `advertencias_torneo(p_torneo)` | autenticados (solo lectura) | Lista de advertencias de partidos no finalizados: `tipo` (`fuera_de_fecha`, `fuera_de_jornada`, `equipo_solapado`, `cancha_cerrada`, `sin_cancha`, `sin_hora`, `cancha_incompatible`, `eliminatoria_antes_de_grupos`, `debio_empezar`), `partido_id`, `otro_partido_id?` (solo en solapados), `categoria_id`, `mensaje` (español, horas en Bogotá). Hora de referencia `coalesce(hora_estimada, hora_programada)` (en vivo: `inicio_real`); duración 2×tiempo + descanso. En eliminatorias sin equipos resueltos el mensaje usa `etiqueta` (o el nombre de la fase). `eliminatoria_antes_de_grupos`: eliminatoria que empieza antes del fin del último partido de grupos pendiente de su categoría. `debio_empezar`: partido programado cuya hora de referencia pasó hace más de 10 minutos (mensaje con cancha y hora). Ordenada por hora (migraciones 11, 12, 17 y 19) |
 | `ganador(partido)` / `perdedor(partido)` | todos | Columnas calculadas: `select('*, ganador')` |
 
 Errores de RPC vienen con mensajes en español → mostrarlos tal cual en un toast.
@@ -114,6 +114,7 @@ Errores de RPC vienen con mensajes en español → mostrarlos tal cual en un toa
 - `anon`: solo lectura de todo menos `perfiles`.
 - `admin` activo: todas las acciones del partido **vía RPC** (iniciar, goles, medio tiempo, finalizar, `reprogramar_partido`) y escribir/borrar `eventos`. Sin UPDATE directo sobre `partidos` (migración 08).
 - `super_admin` activo: todo (config, equipos, jugadores, grupos, crear/editar/borrar partidos con UPDATE directo, perfiles, escudos).
+- Nadie puede cambiar su propio rol ni desactivarse, y siempre debe quedar al menos un super admin activo (triggers en `perfiles`, migración 20). Desde el editor SQL de Supabase no aplica la primera regla.
 - Registro público **desactivado** en Auth. Los usuarios se crean desde el panel de Supabase
   (Authentication → Users → Add user, "Auto Confirm"); el perfil nace inactivo y el super admin lo activa.
 
@@ -187,9 +188,10 @@ activa". Ruta protegida; botón de cerrar sesión; cambiar mi contraseña (`supa
    - Vista tipo agenda por cancha y día; editar a mano hora, cancha y equipos de cualquier partido pendiente.
    - **Advertencias**: partidos después de `fecha_fin` o fuera de jornada, mismo equipo en horarios solapados,
      cancha inactiva con partidos pendientes.
-7. **Usuarios**: lista de perfiles (activar/desactivar, rol, cancha sugerida). Crear usuario y restablecer contraseña
-   requieren la service key → **Edge Function** `admin-usuarios` que verifica que quien llama es super_admin
-   (Fase 5). Mientras tanto se hace desde el panel de Supabase.
+7. **Usuarios**: lista de perfiles con correo (activar/desactivar con confirmación, rol, cancha sugerida). Crear usuario,
+   darle una contraseña nueva y borrarlo requieren la secret key → **Edge Function** `admin-usuarios`
+   (`supabase/functions/admin-usuarios`), que verifica que quien llama es super admin activo. La contraseña temporal se
+   muestra una sola vez para pasársela a la persona (no se envían correos). Nadie se borra ni se desactiva a sí mismo.
 
 ## 5. Diseño (skill ui-ux-pro-max + componentes base)
 
@@ -199,8 +201,8 @@ Chitana (`public/assets/Chita.png`, verde y amarillo). Valores medidos sobre la 
 
 | Token | Hex | Uso | Contraste |
 |---|---|---|---|
-| `--verde` | `#018D36` | Primario: encabezados, chips activos, fondos grandes | blanco encima 4.3:1 → solo texto grande (≥ 24px o 19px bold) |
-| `--verde-oscuro` | `#016B29` | Botones con texto, links, foco | blanco encima 6.7:1 ✅ |
+| `--verde` | `#018D36` | Primario: chips activos, fondos grandes, gráficos | blanco encima 4.3:1 → solo texto grande (≥ 24px o 19px bold) |
+| `--verde-oscuro` | `#016B29` | Cabeceras (llevan texto blanco pequeño), botones con texto, links, foco | blanco encima 6.7:1 ✅ |
 | `--verde-claro` | `#3CA93E` | Acentos secundarios, gráficos | — |
 | `--amarillo` | `#FCC000` | Acento/CTA, campeón, resaltar marcador | **texto oscuro encima** (`--cafe` 9.9:1). Nunca blanco sobre amarillo |
 | `--dorado` | `#D49F37` | Detalles (llaves, final, trofeo, bordes) | decorativo |

@@ -74,7 +74,7 @@ export default function Historial() {
                 <li key={r.club_id} className="flex min-h-14 items-center gap-3 px-3 py-2">
                   <Escudo nombre={r.nombre ?? ''} path={r.escudo_path} />
                   <span className="min-w-0 flex-1 truncate font-semibold">{r.nombre}</span>
-                  <span className="flex items-center gap-0.5 text-gold-foreground" aria-hidden>
+                  <span className="flex items-center gap-0.5 text-gold" aria-hidden>
                     {Array.from({ length: Math.min(r.titulos ?? 0, 5) }, (_, i) => (
                       <Star key={i} className="size-4 fill-current" />
                     ))}
@@ -162,7 +162,7 @@ export default function Historial() {
                   className="flex items-center gap-3 rounded-lg border bg-card p-3"
                 >
                   <span className="w-14 shrink-0 font-display text-2xl tabular-nums">{p.anio}</span>
-                  <Trophy aria-hidden className="size-5 shrink-0 text-gold-foreground" />
+                  <Trophy aria-hidden className="size-5 shrink-0 text-gold" />
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="truncate font-semibold">{p.campeon_nombre}</span>
                     <span className="truncate text-sm text-muted-foreground">

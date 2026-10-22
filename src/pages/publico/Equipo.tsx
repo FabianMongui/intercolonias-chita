@@ -5,17 +5,21 @@ import { Escudo } from '@/components/partido/Escudo'
 import { TarjetaPartido, TarjetaPartidoSkeleton } from '@/components/partido/TarjetaPartido'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useEquipo } from '@/hooks/useEquipos'
+import { useHistorial } from '@/hooks/useHistorial'
 import { usePartidosTorneo } from '@/hooks/usePartidosTorneo'
 import { usePosiciones } from '@/hooks/useTablas'
 import { agrupar } from '@/lib/agrupar'
 import { horaReferencia } from '@/lib/orden'
 import { claveDia, formatearFechaLarga } from '@/lib/time'
+import { Estrellas } from '@/components/Estrellas'
 
 export default function Equipo() {
   const id = Number(useParams().id)
   const equipoQ = useEquipo(id)
   const datos = usePartidosTorneo()
   const posicionesQ = usePosiciones(equipoQ.data?.categoria.id)
+  // Vacío si el Historial está oculto al público (lo filtra la base).
+  const ranking = useHistorial().data?.ranking
   const [params] = useSearchParams()
   const cat = params.get('cat')
   const volver = { pathname: '/equipos', search: cat ? `?cat=${encodeURIComponent(cat)}` : '' }
@@ -63,6 +67,12 @@ export default function Equipo() {
             <p className="font-semibold">
               {[`${String(fila.posicion)}°${fila.grupo ? ` del Grupo ${fila.grupo}` : ''}`, `${String(fila.puntos ?? 0)} pts`].join(' · ')}
             </p>
+          )}
+          {equipo.club && (
+            <Palmares
+              club={equipo.club.nombre}
+              titulos={ranking?.find((r) => r.club_id === equipo.club_id)?.titulos ?? 0}
+            />
           )}
           {equipo.representante && (
             <p className="text-sm text-muted-foreground">Representante: {equipo.representante}</p>
@@ -148,5 +158,23 @@ function EquipoCargando() {
       </div>
       <TarjetaPartidoSkeleton />
     </div>
+  )
+}
+
+/** Club del equipo y, si el Historial está publicado y tiene alguno, sus títulos. */
+function Palmares({ club, titulos }: { club: string; titulos: number }) {
+  return (
+    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+      <span className="font-semibold">{club}</span>
+      {titulos > 0 && (
+        <Link
+          to="/historial"
+          className="inline-flex min-h-11 items-center gap-1 rounded-md font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        >
+          <Estrellas titulos={titulos} />
+          {`${String(titulos)} ${titulos === 1 ? 'título' : 'títulos'}`}
+        </Link>
+      )}
+    </p>
   )
 }

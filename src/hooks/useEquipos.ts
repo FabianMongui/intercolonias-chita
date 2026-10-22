@@ -21,7 +21,7 @@ async function obtenerEquipo(id: number) {
   const { data, error } = await supabase
     .from('equipos')
     .select(
-      `id, nombre, representante, escudo_path,
+      `id, nombre, representante, escudo_path, club_id, club:clubes(nombre),
       grupo:grupos(id, nombre),
       categoria:categorias(id, nombre),
       jugadores(id, nombre, numero, posicion)`,

@@ -36,6 +36,10 @@ export const router = createBrowserRouter([
             lazy: async () => ({ Component: (await import('@/pages/publico/Equipo')).default }),
           },
           {
+            path: 'historial',
+            lazy: async () => ({ Component: (await import('@/pages/publico/Historial')).default }),
+          },
+          {
             path: 'partido/:id',
             lazy: async () => ({ Component: (await import('@/pages/publico/Partido')).default }),
           },

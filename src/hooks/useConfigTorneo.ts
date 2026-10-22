@@ -6,7 +6,7 @@ import type { Database } from '@/types/database'
 
 export type DatosTorneo = Pick<
   Database['public']['Tables']['torneos']['Insert'],
-  'nombre' | 'tipo' | 'fecha_inicio' | 'fecha_fin' | 'hora_inicio_jornada' | 'hora_fin_jornada' | 'minutos_entre_partidos'
+  'nombre' | 'tipo' | 'fecha_inicio' | 'fecha_fin' | 'hora_inicio_jornada' | 'hora_fin_jornada' | 'minutos_entre_partidos' | 'cuenta_en_historial'
 >
 
 /** Lo que se pierde al borrar un torneo (para la confirmación fuerte). */

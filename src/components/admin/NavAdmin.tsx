@@ -12,6 +12,7 @@ const SECCIONES = [
   { ruta: '/admin/grupos', texto: 'Grupos' },
   { ruta: '/admin/fixture', texto: 'Fixture' },
   { ruta: '/admin/agenda', texto: 'Agenda' },
+  { ruta: '/admin/historial', texto: 'Historial' },
   { ruta: '/admin/usuarios', texto: 'Usuarios' },
 ]
 

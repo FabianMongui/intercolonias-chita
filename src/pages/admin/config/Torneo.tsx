@@ -1,4 +1,4 @@
-import { CalendarDays, Clock, Pencil, Plus, Settings2, Star, Trash2 } from 'lucide-react'
+import { CalendarDays, Clock, Pencil, Plus, Settings2, Star, Trash2, Trophy } from 'lucide-react'
 import { type SubmitEvent, useId, useState } from 'react'
 import { useOutletContext } from 'react-router'
 import { toast } from 'sonner'
@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { type DatosTorneo, useConteoTorneo, useMutacionesTorneo } from '@/hooks/useConfigTorneo'
 import { useTorneos } from '@/hooks/useTorneos'
@@ -97,6 +98,10 @@ export default function Torneo() {
                 <li className="flex items-center gap-2">
                   <Clock aria-hidden className="size-4 shrink-0 text-primary" />
                   {`Jornada ${horaCorta(t.hora_inicio_jornada)} a ${horaCorta(t.hora_fin_jornada)} · ${String(t.minutos_entre_partidos)} min entre partidos`}
+                </li>
+                <li className="flex items-center gap-2">
+                  <Trophy aria-hidden className="size-4 shrink-0 text-primary" />
+                  {t.cuenta_en_historial ? 'Cuenta para el historial' : 'No cuenta para el historial (prueba)'}
                 </li>
               </ul>
               <div className="flex flex-wrap gap-2">
@@ -265,6 +270,8 @@ function FormularioTorneo({
   const [horaInicio, setHoraInicio] = useState(torneo ? horaCorta(torneo.hora_inicio_jornada) : '08:00')
   const [horaFin, setHoraFin] = useState(torneo ? horaCorta(torneo.hora_fin_jornada) : '18:00')
   const [minutos, setMinutos] = useState(String(torneo?.minutos_entre_partidos ?? 10))
+  // Los torneos nuevos cuentan por defecto; los de prueba se marcan para que no sumen títulos.
+  const [historial, setHistorial] = useState(torneo?.cuenta_en_historial ?? true)
   const [error, setError] = useState<string | null>(null)
   const [campoConError, setCampoConError] = useState<string | null>(null)
   const campo = (sufijo: string) => `${id}-${sufijo}`
@@ -305,6 +312,7 @@ function FormularioTorneo({
       hora_inicio_jornada: horaInicio,
       hora_fin_jornada: horaFin,
       minutos_entre_partidos: min,
+      cuenta_en_historial: historial,
     })
   }
 
@@ -419,6 +427,15 @@ function FormularioTorneo({
                 setMinutos(e.target.value)
               }}
             />
+          </div>
+          <div className="flex items-start justify-between gap-3 rounded-lg border bg-surface p-3">
+            <div className="flex flex-col gap-1">
+              <Label htmlFor={campo('historial')}>Cuenta para el historial</Label>
+              <p className="text-sm text-muted-foreground">
+                El campeón de cada categoría suma un título a su club. Apágalo en torneos de prueba.
+              </p>
+            </div>
+            <Switch id={campo('historial')} checked={historial} onCheckedChange={setHistorial} />
           </div>
           <ErrorFormulario id={campo('error')}>{error}</ErrorFormulario>
           <Button type="submit" size="lg" disabled={ocupado}>

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Outlet } from 'react-router'
 import { EncabezadoApp } from '@/components/layout/EncabezadoApp'
 import { NavInferior } from '@/components/layout/Navegacion'
+import { AvisoGol } from '@/components/partido/AvisoGol'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Toaster } from '@/components/ui/sonner'
 import { useTiempoReal } from '@/hooks/useTiempoReal'
@@ -13,6 +14,7 @@ function Marco({ children }: { children: ReactNode }) {
       {/* pb extra en móvil para que la barra inferior no tape el contenido */}
       <main className="mx-auto max-w-screen-lg px-4 pt-6 pb-24 md:pb-10">{children}</main>
       <NavInferior />
+      <AvisoGol />
       <Toaster />
     </>
   )

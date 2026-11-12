@@ -5,23 +5,31 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { CARPETA_CLUBES, sugerirClub, useClubes } from '@/hooks/useConfigClubes'
 import type { DatosEquipo } from '@/hooks/useConfigEquipos'
 
-/** Hoja inferior para crear o editar un equipo (nombre y representante). */
+/** Hoja inferior para crear o editar un equipo (nombre, club y representante). */
 export function FormularioEquipo({
   equipo,
   ocupado,
   cerrar,
   guardar,
 }: {
-  equipo: { nombre: string; representante: string | null } | null
+  equipo: { nombre: string; representante: string | null; club_id: number | null; escudo_path: string | null } | null
   ocupado: boolean
   cerrar: () => void
   guardar: (datos: DatosEquipo) => void
 }) {
   const id = useId()
+  const clubesQ = useClubes()
+  const clubes = clubesQ.data ?? []
   const [nombre, setNombre] = useState(equipo?.nombre ?? '')
   const [representante, setRepresentante] = useState(equipo?.representante ?? '')
+  // Al crear, mientras no se elija a mano, el club se sugiere por el nombre ("Chita 2 FC" → Colonia Chitana).
+  // Al editar se respeta lo guardado (también "Sin club").
+  const [clubElegido, setClubElegido] = useState<string | null>(equipo ? String(equipo.club_id ?? '') : null)
+  const sugerido = sugerirClub(nombre, clubes)
+  const club = clubElegido ?? (sugerido ? String(sugerido.id) : '')
   const [error, setError] = useState<string | null>(null)
 
   const enviar = (e: SubmitEvent<HTMLFormElement>) => {
@@ -32,7 +40,15 @@ export function FormularioEquipo({
       return
     }
     setError(null)
-    guardar({ nombre: nombre.trim(), representante: representante.trim() || null })
+    const clubId = club === '' ? null : Number(club)
+    const datos: DatosEquipo = { nombre: nombre.trim(), representante: representante.trim() || null, club_id: clubId }
+    // Un equipo sin escudo propio muestra el de su club; si tenía uno propio, se respeta.
+    const usaEscudoDeClub = !equipo?.escudo_path || equipo.escudo_path.startsWith(CARPETA_CLUBES)
+    if (usaEscudoDeClub) {
+      const escudoClub = clubes.find((c) => c.id === clubId)?.escudo_path ?? null
+      if (escudoClub !== (equipo?.escudo_path ?? null)) datos.escudo_path = escudoClub
+    }
+    guardar(datos)
   }
 
   return (
@@ -62,6 +78,30 @@ export function FormularioEquipo({
             />
           </div>
           <div className="flex flex-col gap-2">
+            <Label htmlFor={`${id}-club`}>Club</Label>
+            <select
+              id={`${id}-club`}
+              value={club}
+              aria-describedby={`${id}-club-ayuda`}
+              onChange={(e) => {
+                setClubElegido(e.target.value)
+              }}
+              className="min-h-11 w-full rounded-lg border border-input bg-surface px-3 text-base text-foreground focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            >
+              <option value="">Sin club</option>
+              {clubes.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre}
+                </option>
+              ))}
+            </select>
+            <p id={`${id}-club-ayuda`} className="text-sm text-muted-foreground">
+              {clubElegido === null && sugerido
+                ? 'Sugerido por el nombre. El equipo usa su escudo y suma sus títulos al historial.'
+                : 'La colonia a la que pertenece: usa su escudo y suma sus títulos al historial.'}
+            </p>
+          </div>
+          <div className="flex flex-col gap-2">
             <Label htmlFor={`${id}-rep`}>Representante (opcional)</Label>
             <Input
               id={`${id}-rep`}
@@ -73,7 +113,7 @@ export function FormularioEquipo({
             />
           </div>
           <ErrorFormulario id={`${id}-error`}>{error}</ErrorFormulario>
-          <Button type="submit" size="lg" disabled={ocupado}>
+          <Button type="submit" size="lg" disabled={ocupado || clubesQ.isPending}>
             {ocupado && <Loader2 aria-hidden className="animate-spin" />}
             {equipo ? 'Guardar cambios' : 'Crear equipo'}
           </Button>

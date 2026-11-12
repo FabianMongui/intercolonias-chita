@@ -7,10 +7,12 @@ const SECCIONES = [
   { ruta: '/admin/torneo', texto: 'Torneo' },
   { ruta: '/admin/canchas', texto: 'Canchas' },
   { ruta: '/admin/categorias', texto: 'Categorías' },
+  { ruta: '/admin/clubes', texto: 'Clubes' },
   { ruta: '/admin/equipos', texto: 'Equipos' },
   { ruta: '/admin/grupos', texto: 'Grupos' },
   { ruta: '/admin/fixture', texto: 'Fixture' },
   { ruta: '/admin/agenda', texto: 'Agenda' },
+  { ruta: '/admin/historial', texto: 'Historial' },
   { ruta: '/admin/usuarios', texto: 'Usuarios' },
 ]
 

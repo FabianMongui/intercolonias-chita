@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
+import { CARPETA_CLUBES } from '@/hooks/useConfigClubes'
 import { useMutacionConfig } from '@/hooks/useMutacionConfig'
 import { prepararEscudo, slugArchivo } from '@/lib/escudo-imagen'
 import { supabase } from '@/lib/supabase'
 
-const CLAVES = ['agenda-config', 'equipos-config', 'fixture-config', 'grupos-config', 'equipo-config', 'equipos', 'equipo', 'categorias-config', 'partidos', 'posiciones', 'goleadores']
+const CLAVES = ['agenda-config', 'clubes-config', 'historial-config', 'equipos-config', 'fixture-config', 'grupos-config', 'equipo-config', 'equipos', 'equipo', 'categorias-config', 'partidos', 'posiciones', 'goleadores']
 const BUCKET = 'escudos'
 
 export function useEquiposConfig(categoriaId: number | undefined) {
@@ -12,7 +13,7 @@ export function useEquiposConfig(categoriaId: number | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('equipos')
-        .select('id, nombre, representante, escudo_path, grupo:grupos(nombre), jugadores(id)')
+        .select('id, nombre, representante, escudo_path, club_id, club:clubes(nombre), grupo:grupos(nombre), jugadores(id)')
         .eq('categoria_id', categoriaId ?? 0)
         .order('nombre')
       if (error) throw error
@@ -26,7 +27,7 @@ async function obtenerEquipo(id: number) {
   const { data, error } = await supabase
     .from('equipos')
     .select(
-      'id, nombre, representante, escudo_path, categoria_id, categoria:categorias(id, nombre, torneo_id), grupo:grupos(nombre), jugadores(id, nombre, numero, posicion)',
+      'id, nombre, representante, escudo_path, club_id, club:clubes(nombre), categoria_id, categoria:categorias(id, nombre, torneo_id), grupo:grupos(nombre), jugadores(id, nombre, numero, posicion)',
     )
     .eq('id', id)
     .order('numero', { referencedTable: 'jugadores', nullsFirst: false })
@@ -75,6 +76,9 @@ export function useImpactoEquipo(id: number | undefined) {
 export interface DatosEquipo {
   nombre: string
   representante: string | null
+  club_id: number | null
+  /** Solo cuando el formulario decide usar (o cambiar) el escudo del club. */
+  escudo_path?: string | null
 }
 
 export interface DatosJugador {
@@ -82,9 +86,10 @@ export interface DatosJugador {
   numero: number | null
 }
 
-/** Borra un archivo del bucket sin frenar la acción principal si falla (queda huérfano, no rompe nada). */
+/** Borra un archivo del bucket sin frenar la acción principal si falla (queda huérfano, no rompe nada).
+ * Los escudos de club (clubes/…) son compartidos: un equipo nunca los borra. */
 async function borrarArchivo(path: string | null) {
-  if (path) await supabase.storage.from(BUCKET).remove([path])
+  if (path && !path.startsWith(CARPETA_CLUBES)) await supabase.storage.from(BUCKET).remove([path])
 }
 
 export function useMutacionesEquipos() {

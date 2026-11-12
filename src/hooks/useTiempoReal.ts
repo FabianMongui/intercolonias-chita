@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { REALTIME_SUBSCRIBE_STATES, type RealtimeChannel } from '@supabase/supabase-js'
 import { useEffect } from 'react'
+import { publicarAviso } from '@/lib/avisos-gol'
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/types/database'
 
@@ -94,6 +95,21 @@ export function useTiempoReal() {
           const partidoId = 'partido_id' in cambio.new ? cambio.new.partido_id : undefined
           if (typeof partidoId === 'number') invalidar(['goleadores'], partidoId)
           else invalidar(['goleadores', 'partido'])
+          // Aviso de gol (solo lo muestra quien se suscribe: la parte pública).
+          if (cambio.eventType === 'INSERT' && cambio.new.tipo === 'gol') {
+            publicarAviso({
+              tipo: 'gol',
+              gol: {
+                eventoId: cambio.new.id,
+                partidoId: cambio.new.partido_id,
+                equipoId: cambio.new.equipo_id,
+                jugadorId: cambio.new.jugador_id,
+                minuto: cambio.new.minuto,
+              },
+            })
+          } else if (cambio.eventType === 'DELETE' && 'id' in cambio.old && typeof cambio.old.id === 'number') {
+            publicarAviso({ tipo: 'anulado', eventoId: cambio.old.id })
+          }
         })
         .subscribe((estado) => {
           // Avisos de un canal ya cerrado por nosotros (pestaña oculta): no reactivar nada.

@@ -36,6 +36,10 @@ export const router = createBrowserRouter([
             lazy: async () => ({ Component: (await import('@/pages/publico/Equipo')).default }),
           },
           {
+            path: 'historial',
+            lazy: async () => ({ Component: (await import('@/pages/publico/Historial')).default }),
+          },
+          {
             path: 'partido/:id',
             lazy: async () => ({ Component: (await import('@/pages/publico/Partido')).default }),
           },
@@ -106,6 +110,14 @@ export const router = createBrowserRouter([
               {
                 path: 'usuarios',
                 lazy: async () => ({ Component: (await import('@/pages/admin/config/Usuarios')).default }),
+              },
+              {
+                path: 'clubes',
+                lazy: async () => ({ Component: (await import('@/pages/admin/config/Clubes')).default }),
+              },
+              {
+                path: 'historial',
+                lazy: async () => ({ Component: (await import('@/pages/admin/config/Historial')).default }),
               },
             ],
           },

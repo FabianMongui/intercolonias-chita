@@ -54,19 +54,27 @@ exportarlas a `supabase/migrations/` (con el MCP de Supabase o `supabase db pull
 
 | Tabla | Campos clave | Notas |
 |---|---|---|
-| `torneos` | nombre, tipo (`intercolonias`…), fecha_inicio, fecha_fin, hora_inicio_jornada, hora_fin_jornada, minutos_entre_partidos, activo | Solo **uno activo** a la vez (índice único parcial). La app pública muestra el activo |
+| `torneos` | nombre, tipo (`intercolonias`…), fecha_inicio, fecha_fin, hora_inicio_jornada, hora_fin_jornada, minutos_entre_partidos, activo, cuenta_en_historial (def. false) | Solo **uno activo** a la vez (índice único parcial). La app pública muestra el activo. `cuenta_en_historial` (migración 22): solo los torneos reales (true) entran al palmarés; los de prueba quedan en false |
 | `canchas` | torneo_id, nombre, tipo `F11`/`F6`, activa, orden | |
 | `categorias` | torneo_id, nombre, tipo_cancha, cancha_fija_id?, minutos_por_tiempo, minutos_descanso, orden | |
 | `grupos` | categoria_id, nombre (`A`, `B`… regex `^[A-Z]{1,2}$`) | |
-| `equipos` | categoria_id, grupo_id?, nombre, representante, escudo_path | `grupo_id` null = equipo sin asignar (bombo) |
+| `equipos` | categoria_id, grupo_id?, club_id?, nombre, representante, escudo_path | `grupo_id` null = equipo sin asignar (bombo). `club_id` (opcional, migración 21) liga el equipo a su club para el palmarés |
 | `jugadores` | equipo_id, nombre, numero (0–99)?, posicion? | |
 | `partidos` | categoria_id, fase (`grupos`/`semifinal`/`tercer_puesto`/`final`), grupo_id?, ronda?, etiqueta?, equipo_local_id?, equipo_visitante_id?, ref_local?, ref_visitante?, cancha_id?, hora_programada, hora_estimada, estado (`programado`/`en_vivo`/`finalizado`), periodo (`1T`/`descanso`/`2T`), inicio_real, fin_primer_tiempo, inicio_segundo_tiempo, fin_real, goles_local, goles_visitante, penales_local?, penales_visitante? | Ver 3.3 |
 | `eventos` | partido_id, equipo_id, jugador_id?, tipo (`gol`/`amarilla`/`roja`), autogol, minuto, periodo, created_by | `equipo_id` = equipo al que **se le suma** el gol (en autogol, el rival del jugador) |
 | `perfiles` | id (= auth.users.id), nombre, rol (`super_admin`/`admin`), cancha_id?, activo | Se crea **automáticamente inactivo** al crear un usuario (trigger). `cancha_id` es solo sugerencia: los admins rotan, no restringe |
+| `clubes` | nombre (único, sin espacios al borde, no vacío), escudo_path? | Identidad de un equipo **entre torneos** (migración 21) |
+| `campeones_historicos` | anio (1990–2100), tipo_torneo (def. `intercolonias`), categoria, campeon_club_id, subcampeon_club_id? (≠ campeón), marcador_final?, nota? | Torneos **anteriores a la app**, cargados a mano. Único por (anio, tipo_torneo, categoria). Un club campeón aquí no se puede borrar (`restrict`) (migración 21) |
+| `ajustes` | id (siempre 1), historial_publico (def. false) | **Una sola fila**: el super admin la actualiza, nadie inserta ni borra (migración 21) |
 
 ### 3.2 Vistas (lectura pública)
 - `posiciones`: por equipo → categoria_id, grupo_id, grupo, equipo_id, equipo, escudo_path, pj, pg, pe, pp, gf, gc, dg, puntos, **posicion** (ya ordenada).
 - `goleadores`: por jugador → categoria_id, jugador_id, jugador, numero, equipo_id, equipo, escudo_path, goles (sin autogoles).
+- `palmares` (migración 21): campeón y subcampeón por edición → origen (`app`/`registro`), anio, tipo_torneo, categoria, torneo_id?, campeon_club_id?, campeon_nombre, campeon_escudo_path, subcampeon_club_id?, subcampeon_nombre, subcampeon_escudo_path, marcador_final.
+  `app`: cada partido `fase = 'final'` finalizado de un torneo con `cuenta_en_historial = true` (migración 22), con `ganador`/`perdedor` (incluye penales); año = año de `torneos.fecha_inicio`; marcador desde el campeón (`2-1` o `1-1 (4-3 pen.)`); nombre/escudo del club si el equipo tiene club, si no los del equipo (club_id null).
+  `registro`: filas de `campeones_historicos`, salvo que ya exista una de la app con el mismo año, tipo y categoría (sin distinguir mayúsculas ni tildes).
+- `titulos_por_club` (migración 21): club_id, nombre, escudo_path, titulos (campeonatos en `palmares`); solo clubes con al menos 1 título, ordenada por títulos desc y nombre.
+- Historial oculto **en la base, no solo en la UI** (migración 22): `palmares` y `titulos_por_club` devuelven 0 filas salvo que `ajustes.historial_publico` sea true o quien consulta sea super admin activo (`es_super_admin()`, con execute para anon: sin sesión siempre da false). El público no lee el historial oculto.
 
 ### 3.3 Reglas automáticas (triggers)
 - **Marcador**: `goles_local/visitante` se recalculan solos al insertar/borrar en `eventos`. **El frontend nunca
@@ -114,6 +122,7 @@ Errores de RPC vienen con mensajes en español → mostrarlos tal cual en un toa
 - `anon`: solo lectura de todo menos `perfiles`.
 - `admin` activo: todas las acciones del partido **vía RPC** (iniciar, goles, medio tiempo, finalizar, `reprogramar_partido`) y escribir/borrar `eventos`. Sin UPDATE directo sobre `partidos` (migración 08).
 - `super_admin` activo: todo (config, equipos, jugadores, grupos, crear/editar/borrar partidos con UPDATE directo, perfiles, escudos).
+- `clubes` y `campeones_historicos`: lectura pública; insertar/editar/borrar solo super admin. `ajustes`: lectura pública; solo el super admin actualiza (sin insert ni delete). Vistas `palmares` y `titulos_por_club`: `security_invoker`, SELECT para anon y authenticated (migración 21).
 - Nadie puede cambiar su propio rol ni desactivarse, y siempre debe quedar al menos un super admin activo (triggers en `perfiles`, migración 20). Desde el editor SQL de Supabase no aplica la primera regla.
 - Registro público **desactivado** en Auth. Los usuarios se crean desde el panel de Supabase
   (Authentication → Users → Add user, "Auto Confirm"); el perfil nace inactivo y el super admin lo activa.

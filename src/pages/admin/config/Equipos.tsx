@@ -96,6 +96,7 @@ export default function Equipos() {
                         {[
                           e.jugadores === 1 ? '1 jugador' : `${String(e.jugadores)} jugadores`,
                           e.grupo ? `Grupo ${e.grupo.nombre}` : 'Sin grupo',
+                          e.club?.nombre ?? 'Sin club',
                         ].join(' · ')}
                       </span>
                     </span>

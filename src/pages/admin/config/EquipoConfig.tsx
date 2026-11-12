@@ -106,7 +106,7 @@ export default function EquipoConfig() {
               {equipo.nombre}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {[equipo.categoria.nombre, equipo.grupo ? `Grupo ${equipo.grupo.nombre}` : 'Sin grupo'].join(' · ')}
+              {[equipo.categoria.nombre, equipo.grupo ? `Grupo ${equipo.grupo.nombre}` : 'Sin grupo', equipo.club?.nombre ?? 'Sin club'].join(' · ')}
             </p>
             {equipo.representante && <p className="text-sm">{`Representante: ${equipo.representante}`}</p>}
           </div>

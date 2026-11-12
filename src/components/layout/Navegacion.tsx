@@ -1,5 +1,6 @@
-import { CalendarDays, ListOrdered, type LucideIcon, Radio, Shield } from 'lucide-react'
+import { CalendarDays, ListOrdered, type LucideIcon, Radio, Shield, Trophy } from 'lucide-react'
 import { NavLink, useSearchParams } from 'react-router'
+import { useHistorialVisible } from '@/hooks/useHistorial'
 import { cn } from '@/lib/utils'
 
 interface Destino {
@@ -15,6 +16,14 @@ const DESTINOS: Destino[] = [
   { ruta: '/equipos', texto: 'Equipos', icono: Shield },
 ]
 
+const HISTORIAL: Destino = { ruta: '/historial', texto: 'Historial', icono: Trophy }
+
+/** La pestaña Historial aparece solo cuando el super admin la publica. */
+function useDestinos(): Destino[] {
+  const visible = useHistorialVisible().data ?? false
+  return visible ? [...DESTINOS, HISTORIAL] : DESTINOS
+}
+
 /** Conserva la categoría elegida (`?cat=`) al cambiar de sección. */
 function useBusquedaCategoria() {
   const [params] = useSearchParams()
@@ -25,13 +34,14 @@ function useBusquedaCategoria() {
 /** Barra inferior en móvil (§4.1). */
 export function NavInferior() {
   const search = useBusquedaCategoria()
+  const destinos = useDestinos()
   return (
     <nav
       aria-label="Secciones"
       className="fixed inset-x-0 bottom-0 z-40 border-t bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
     >
-      <ul className="mx-auto grid max-w-screen-sm grid-cols-4">
-        {DESTINOS.map(({ ruta, texto, icono: Icono }) => (
+      <ul className={cn('mx-auto grid max-w-screen-sm', destinos.length > 4 ? 'grid-cols-5' : 'grid-cols-4')}>
+        {destinos.map(({ ruta, texto, icono: Icono }) => (
           <li key={ruta}>
             <NavLink
               to={{ pathname: ruta, search }}
@@ -60,10 +70,11 @@ export function NavInferior() {
 /** Navegación en la barra superior desde tablet/escritorio. */
 export function NavSuperior() {
   const search = useBusquedaCategoria()
+  const destinos = useDestinos()
   return (
     <nav aria-label="Secciones" className="hidden md:block">
       <ul className="flex items-center gap-1">
-        {DESTINOS.map(({ ruta, texto }) => (
+        {destinos.map(({ ruta, texto }) => (
           <li key={ruta}>
             <NavLink
               to={{ pathname: ruta, search }}

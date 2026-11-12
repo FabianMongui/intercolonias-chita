@@ -22,9 +22,14 @@ export function MiniTablaEnVivo({ categorias }: { categorias: { id: number; nomb
   const posicionesQ = usePosiciones(elegida?.id)
   if (!elegida) return null
   const enJuego = (posicionesQ.data ?? []).filter((f) => f.en_juego)
-  // Si dos categorías quedarían con la misma abreviatura ("Mas."), se muestran los nombres completos.
-  const cortos = categorias.map((c) => abreviar(c.nombre))
-  const etiqueta = (i: number) => (new Set(cortos).size === cortos.length ? cortos[i] : categorias[i]?.nombre)
+  // Si dos categorías quedarían con la misma abreviatura ("Mas."), se distinguen con su segunda palabra ("Mas. A").
+  const cortos = categorias.map((c) => abreviar(c.nombre.split(/\s+/)[0] ?? c.nombre))
+  const repetidos = new Set(cortos.filter((c, i) => cortos.indexOf(c) !== i))
+  const etiqueta = (i: number) => {
+    const corto = cortos[i] ?? ''
+    const segunda = categorias[i]?.nombre.split(/\s+/)[1]
+    return repetidos.has(corto) && segunda ? `${corto} ${segunda}` : abreviar(categorias[i]?.nombre ?? '')
+  }
 
   return (
     <section aria-labelledby="titulo-tabla-en-vivo" className="flex flex-col gap-2 rounded-lg border bg-card p-3">
@@ -58,9 +63,7 @@ export function MiniTablaEnVivo({ categorias }: { categorias: { id: number; nomb
       </div>
       {posicionesQ.isPending ? (
         <Skeleton className="h-20" />
-      ) : enJuego.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Sin equipos en juego en esta categoría.</p>
-      ) : (
+      ) : enJuego.length > 0 ? (
         <ul className="flex flex-col divide-y">
           {enJuego.map((f) => (
             <li key={f.equipo_id} className="flex min-h-10 items-center gap-2 py-1 text-sm">
@@ -77,7 +80,7 @@ export function MiniTablaEnVivo({ categorias }: { categorias: { id: number; nomb
             </li>
           ))}
         </ul>
-      )}
+      ) : null}
       <Link
         to={{ pathname: '/tablas', search: `?cat=${slugCategoria(elegida.nombre)}` }}
         className="inline-flex min-h-11 items-center gap-1 self-end rounded-md text-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring"

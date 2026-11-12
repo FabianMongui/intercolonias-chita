@@ -47,15 +47,25 @@ export function Llaves({ partidos, etiquetaPartido }: LlavesProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,0.8fr)] lg:items-center lg:gap-3">
-        <Columna titulo="Semifinales">
-          {semis.length > 0 ? (
-            semis.map((p) => <Cruce key={p.id} partido={p} etiquetaPartido={etiquetaPartido} />)
-          ) : (
-            <p className="text-muted-foreground">Por definir</p>
-          )}
-        </Columna>
-        <Flecha />
+      {/* Torneos sin semifinales (la final la juegan los primeros de cada grupo): no se muestra esa columna. */}
+      <div
+        className={cn(
+          'grid gap-6 lg:items-center lg:gap-3',
+          semis.length > 0
+            ? 'lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,0.8fr)]'
+            : 'lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,0.8fr)]',
+        )}
+      >
+        {semis.length > 0 && (
+          <>
+            <Columna titulo="Semifinales">
+              {semis.map((p) => (
+                <Cruce key={p.id} partido={p} etiquetaPartido={etiquetaPartido} />
+              ))}
+            </Columna>
+            <Flecha />
+          </>
+        )}
         <Columna titulo="Final">
           {final ? (
             <Cruce partido={final} etiquetaPartido={etiquetaPartido} esFinal />
@@ -82,7 +92,7 @@ export function Llaves({ partidos, etiquetaPartido }: LlavesProps) {
       </div>
 
       {tercero && (
-        <Columna titulo="Tercer puesto" className="lg:max-w-sm">
+        <Columna titulo="Tercer y cuarto puesto" className="lg:max-w-sm">
           <Cruce partido={tercero} etiquetaPartido={etiquetaPartido} />
         </Columna>
       )}

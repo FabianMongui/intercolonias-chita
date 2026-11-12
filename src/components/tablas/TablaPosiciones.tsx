@@ -188,7 +188,7 @@ export function TablaPosicionesSkeleton({ filas = 3 }: { filas?: number }) {
 }
 
 /** ▲/▼ mientras el equipo juega: compara con su posición oficial (sin el partido en curso). Sin número. */
-function Movimiento({ fila }: { fila: PosicionRow }) {
+export function Movimiento({ fila }: { fila: PosicionRow }) {
   if (!fila.en_juego || fila.posicion == null || fila.posicion_oficial == null || fila.posicion === fila.posicion_oficial) {
     return null
   }

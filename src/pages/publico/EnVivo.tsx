@@ -1,19 +1,18 @@
 import { ChevronRight } from 'lucide-react'
-import { Link, useLocation } from 'react-router'
+import { Link } from 'react-router'
 import { ErrorDatos, SinTorneo, Vacio } from '@/components/EstadosPagina'
 import { HoraOficial } from '@/components/HoraOficial'
-import { SelectorCategoria } from '@/components/SelectorCategoria'
 import { TarjetaPartido, TarjetaPartidoSkeleton } from '@/components/partido/TarjetaPartido'
+import { MiniTablaEnVivo } from '@/components/tablas/MiniTablaEnVivo'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useCategoria } from '@/hooks/useCategoria'
 import type { Partido } from '@/hooks/usePartidos'
 import { usePartidosTorneo } from '@/hooks/usePartidosTorneo'
-import { agrupar } from '@/lib/agrupar'
 import { horaReferencia } from '@/lib/orden'
-import { claveDia, formatearFechaLarga, formatearRangoFechas } from '@/lib/time'
+import { formatearRangoFechas } from '@/lib/time'
 
-const CUANTOS_PROXIMOS = 6
-const CUANTOS_RESULTADOS = 6
+/** En vivo es un resumen: el resto está en Partidos (pedido del dueño). */
+const CUANTOS_PROXIMOS = 2
+const CUANTOS_RESULTADOS = 2
 
 function horaFin(p: Partido): number {
   return p.fin_real ? Date.parse(p.fin_real) : 0
@@ -21,8 +20,6 @@ function horaFin(p: Partido): number {
 
 export default function EnVivo() {
   const datos = usePartidosTorneo()
-  const { categoria } = useCategoria()
-  const { search } = useLocation()
   const { torneo, partidos, desfaseMs, etiquetaPartido, minutosPorTiempo, nombreCategoria } = datos
 
   if (datos.cargando) return <EnVivoCargando />
@@ -39,15 +36,34 @@ export default function EnVivo() {
           .sort((a, b) => horaReferencia(a) - horaReferencia(b))[0]
       : undefined
 
-  const deCategoria = partidos.filter((p) => p.categoria_id === categoria?.id)
-  const proximos = deCategoria
+  // Próximos y resultados de todas las categorías mezcladas (§ fase 8).
+  const proximos = partidos
     .filter((p) => p.estado === 'programado' && p.id !== siguiente?.id)
     .sort((a, b) => horaReferencia(a) - horaReferencia(b))
-  const proximosVisibles = proximos.slice(0, CUANTOS_PROXIMOS)
-  const resultados = deCategoria
+    .slice(0, CUANTOS_PROXIMOS)
+  const resultados = partidos
     .filter((p) => p.estado === 'finalizado')
     .sort((a, b) => horaFin(b) - horaFin(a))
     .slice(0, CUANTOS_RESULTADOS)
+  // Categorías con partido de grupos en juego, en el orden del torneo (para la tabla en vivo).
+  const categoriasEnJuego = torneo.categorias.filter((c) =>
+    enVivo.some((p) => p.categoria_id === c.id && p.fase === 'grupos'),
+  )
+  const verTodos = (texto: string) => (
+    <Link
+      to="/partidos"
+      className="inline-flex min-h-11 items-center gap-1 rounded-md text-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring"
+    >
+      {texto}
+      <ChevronRight aria-hidden className="size-4" />
+    </Link>
+  )
+  const conCategoria = (p: Partido) => (
+    <li key={p.id} className="flex flex-col gap-1">
+      <span className="text-sm font-semibold text-muted-foreground">{nombreCategoria(p.categoria_id)}</span>
+      {tarjeta(p)}
+    </li>
+  )
   const tarjeta = (p: Partido, destacado = false) => (
     <TarjetaPartido
       partido={p}
@@ -94,58 +110,33 @@ export default function EnVivo() {
         )}
       </section>
 
-      <div className="flex flex-col gap-2">
-        <p className="text-sm font-semibold text-muted-foreground">Próximos y resultados de la categoría</p>
-        <SelectorCategoria />
-      </div>
+      {categoriasEnJuego.length > 0 && <MiniTablaEnVivo categorias={categoriasEnJuego} />}
 
       <section aria-labelledby="titulo-proximos" className="flex flex-col gap-3">
-        <h2 id="titulo-proximos" className="text-3xl">
-          Próximos
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 id="titulo-proximos" className="text-3xl">
+            Próximos
+          </h2>
+          {proximos.length > 0 && verTodos('Ver todos')}
+        </div>
         {proximos.length === 0 ? (
-          <Vacio>No quedan partidos pendientes en esta categoría.</Vacio>
+          <Vacio>No quedan partidos pendientes.</Vacio>
         ) : (
-          <>
-            {agrupar(proximosVisibles, (p) => (p.hora_programada ? claveDia(p.hora_programada) : '')).map(
-              ([dia, delDia]) => (
-                <div key={dia || 'sin-horario'} className="flex flex-col gap-2">
-                  <h3 className="text-xl first-letter:uppercase">
-                    {dia ? formatearFechaLarga(dia) : 'Sin horario'}
-                  </h3>
-                  <ul className="grid gap-3 md:grid-cols-2">
-                    {delDia.map((p) => (
-                      <li key={p.id}>{tarjeta(p)}</li>
-                    ))}
-                  </ul>
-                </div>
-              ),
-            )}
-            {proximos.length > CUANTOS_PROXIMOS && (
-              <Link
-                to={{ pathname: '/partidos', search }}
-                className="inline-flex min-h-11 items-center gap-1 self-start rounded-md font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-ring"
-              >
-                Ver todos los partidos
-                <ChevronRight aria-hidden className="size-5" />
-              </Link>
-            )}
-          </>
+          <ul className="grid gap-3 md:grid-cols-2">{proximos.map(conCategoria)}</ul>
         )}
       </section>
 
       <section aria-labelledby="titulo-resultados" className="flex flex-col gap-3">
-        <h2 id="titulo-resultados" className="text-3xl">
-          Últimos resultados
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 id="titulo-resultados" className="text-3xl">
+            Últimos resultados
+          </h2>
+          {resultados.length > 0 && verTodos('Ver todos')}
+        </div>
         {resultados.length === 0 ? (
-          <Vacio>Todavía no hay partidos terminados en esta categoría.</Vacio>
+          <Vacio>Todavía no hay partidos terminados.</Vacio>
         ) : (
-          <ul className="grid gap-3 md:grid-cols-2">
-            {resultados.map((p) => (
-              <li key={p.id}>{tarjeta(p)}</li>
-            ))}
-          </ul>
+          <ul className="grid gap-3 md:grid-cols-2">{resultados.map(conCategoria)}</ul>
         )}
       </section>
     </div>

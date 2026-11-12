@@ -288,8 +288,9 @@ export default function ControlPartido() {
                 Finalizar partido
               </BotonAccion>
             )}
-            {/* Salvavidas para un partido iniciado por error. El admin de cancha solo lo ve los primeros
-                10 minutos del 1T (la base también lo valida); el super admin, mientras siga en juego. */}
+            {/* Salvavidas "Reiniciar partido" (deshacer_inicio) para un partido iniciado por error.
+                El admin de cancha solo lo ve los primeros 10 minutos del 1T (la base también lo valida);
+                el super admin, mientras siga en juego. */}
             {(esSuperAdmin || adminPuedeDeshacer) && (
               <Button
                 variant="ghost"
@@ -297,15 +298,15 @@ export default function ControlPartido() {
                 disabled={ocupado}
                 onClick={() => {
                   setConfirmacion({
-                    titulo: '¿Deshacer el inicio?',
-                    descripcion: `El partido vuelve a "por iniciar" con el marcador en 0-0${goles.length === 1 ? ' y se borra el gol registrado' : goles.length > 1 ? ` y se borran los ${String(goles.length)} goles registrados` : ''}. Úsalo solo si se inició por error.`,
-                    boton: 'Deshacer inicio',
+                    titulo: '¿Reiniciar el partido?',
+                    descripcion: `Se borra el marcador${goles.length === 1 ? ' y el gol registrado' : goles.length > 1 ? ` y los ${String(goles.length)} goles registrados` : ''}, y el partido vuelve a quedar sin iniciar. Cuando estén listos, toca "Iniciar partido" de nuevo.`,
+                    boton: 'Reiniciar partido',
                     accion: { tipo: 'deshacer' },
                     peligro: true,
                   })
                 }}
               >
-                Deshacer inicio
+                Reiniciar partido
               </Button>
             )}
           </>

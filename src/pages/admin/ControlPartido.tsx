@@ -1,6 +1,6 @@
 import { ArrowLeft, Loader2, Minus, Plus, Search, Trash2 } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
-import { Link, useLocation, useParams } from 'react-router'
+import { Link, useLocation, useOutletContext, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { ErrorDatos, NoEncontrado } from '@/components/EstadosPagina'
 import { HojaReprogramar } from '@/components/admin/HojaReprogramar'
@@ -25,12 +25,17 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { Skeleton } from '@/components/ui/skeleton'
 import { type Accion, useAccionesPartido, useJugadoresPartido } from '@/hooks/useAccionesPartido'
 import { type PartidoDetalle, usePartido } from '@/hooks/usePartido'
+import { type Perfil } from '@/hooks/usePerfil'
 import { usePartidosTorneo } from '@/hooks/usePartidosTorneo'
 import { textoFasePartido } from '@/lib/fases'
 import { textoReferencia } from '@/lib/referencias'
+import { ahoraServidor, formatearHora } from '@/lib/time'
 import { cn } from '@/lib/utils'
 
 type Lado = 'local' | 'visitante'
+
+/** Iniciar con más de esta anticipación pide confirmar (no bloquea: los horarios se corren mucho). */
+const MARGEN_TEMPRANO_MS = 60 * 60_000
 
 interface Confirmacion {
   titulo: string
@@ -47,6 +52,8 @@ export default function ControlPartido() {
   const partidoQ = usePartido(id)
   const { etiquetaPartido, desfaseMs, torneo } = usePartidosTorneo()
   const { ejecutar, pendiente } = useAccionesPartido(id)
+  const perfil = useOutletContext<Perfil | undefined>()
+  const esSuperAdmin = perfil?.rol === 'super_admin'
   const p = partidoQ.data
   const jugadoresQ = useJugadoresPartido(p?.equipo_local_id ?? null, p?.equipo_visitante_id ?? null)
   const [hojaGol, setHojaGol] = useState<Lado | null>(null)
@@ -175,10 +182,16 @@ export default function ControlPartido() {
               cargando={pendiente?.tipo === 'iniciar'}
               disabled={ocupado}
               onClick={() => {
+                // Los horarios se corren mucho: solo se avisa (no se bloquea) si falta más de una hora.
+                const hora = p.hora_estimada ?? p.hora_programada
+                const temprano =
+                  hora !== null && desfaseMs !== undefined && Date.parse(hora) - ahoraServidor(desfaseMs).getTime() > MARGEN_TEMPRANO_MS
                 setConfirmacion({
-                  titulo: 'Iniciar partido',
-                  descripcion: `Empieza a correr el reloj de ${nombre('local')} vs ${nombre('visitante')} y se ajustan las horas de los siguientes partidos de la cancha.`,
-                  boton: 'Iniciar',
+                  titulo: temprano ? '¿Iniciar antes de tiempo?' : 'Iniciar partido',
+                  descripcion: temprano
+                    ? `Este partido está previsto para las ${formatearHora(hora)}, falta más de una hora. Revisa que sea el partido que se va a jugar en la cancha: ${nombre('local')} vs ${nombre('visitante')}.`
+                    : `Empieza a correr el reloj de ${nombre('local')} vs ${nombre('visitante')} y se ajustan las horas de los siguientes partidos de la cancha.`,
+                  boton: temprano ? 'Sí, iniciar' : 'Iniciar',
                   accion: { tipo: 'iniciar' },
                 })
               }}
@@ -263,6 +276,26 @@ export default function ControlPartido() {
               <BotonAccion cargando={pendiente?.tipo === 'finalizar'} disabled={ocupado} onClick={pedirFinalizar}>
                 Finalizar partido
               </BotonAccion>
+            )}
+            {/* Salvavidas para un partido iniciado por error. El admin de cancha solo lo ve en el 1T
+                (la base además limita a 10 minutos); el super admin, mientras siga en juego. */}
+            {(esSuperAdmin || p.periodo === '1T') && (
+              <Button
+                variant="ghost"
+                className="min-h-11 self-center text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                disabled={ocupado}
+                onClick={() => {
+                  setConfirmacion({
+                    titulo: '¿Deshacer el inicio?',
+                    descripcion: `El partido vuelve a "por iniciar" con el marcador en 0-0${goles.length === 1 ? ' y se borra el gol registrado' : goles.length > 1 ? ` y se borran los ${String(goles.length)} goles registrados` : ''}. Úsalo solo si se inició por error.`,
+                    boton: 'Deshacer inicio',
+                    accion: { tipo: 'deshacer' },
+                    peligro: true,
+                  })
+                }}
+              >
+                Deshacer inicio
+              </Button>
             )}
           </>
         )}

@@ -12,6 +12,7 @@ export type Accion =
   | { tipo: 'gol'; equipoId: number; jugadorId: number | null; autogol: boolean }
   | { tipo: 'anular'; eventoId: number }
   | { tipo: 'reprogramar'; hora?: string; canchaId?: number }
+  | { tipo: 'deshacer' }
 
 async function ejecutar(partidoId: number, accion: Accion): Promise<void> {
   switch (accion.tipo) {
@@ -56,6 +57,12 @@ async function ejecutar(partidoId: number, accion: Accion): Promise<void> {
         ...(accion.hora !== undefined && { p_hora: accion.hora }),
         ...(accion.canchaId !== undefined && { p_cancha: accion.canchaId }),
       })
+      if (error) throw error
+      return
+    }
+    case 'deshacer': {
+      // Salvavidas: la base decide quién puede y hasta cuándo (migración 24).
+      const { error } = await supabase.rpc('deshacer_inicio', { p_id: partidoId })
       if (error) throw error
       return
     }

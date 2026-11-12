@@ -11,8 +11,11 @@ function Marco({ children }: { children: ReactNode }) {
   return (
     <>
       <EncabezadoApp />
-      {/* pb extra en móvil para que la barra inferior no tape el contenido */}
       <main className="mx-auto max-w-screen-lg px-4 pt-6 pb-24 md:pb-10">{children}</main>
+      {/* Crédito discreto al final en escritorio; en el celular va dentro de la barra inferior */}
+      <footer className="mx-auto hidden max-w-screen-lg px-4 pb-6 text-center text-xs text-muted-foreground md:block">
+        Desarrollado por Ing. Fabian Mongui
+      </footer>
       <NavInferior />
       <AvisoGol />
       <Toaster />

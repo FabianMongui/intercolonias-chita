@@ -63,6 +63,8 @@ export function NavInferior() {
           </li>
         ))}
       </ul>
+      {/* Crédito del autor en el celular (en escritorio va en el pie de página). */}
+      <p className="pb-1 text-center text-[11px] leading-tight text-muted-foreground">Ing. Fabian Mongui</p>
     </nav>
   )
 }

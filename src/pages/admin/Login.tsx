@@ -110,6 +110,7 @@ export default function Login() {
             {enviando ? 'Entrando…' : 'Entrar'}
           </Button>
         </form>
+        <p className="mt-10 text-center text-xs text-muted-foreground">Desarrollado por Ing. Fabian Mongui</p>
       </main>
     </>
   )

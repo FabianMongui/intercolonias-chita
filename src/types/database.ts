@@ -877,6 +877,41 @@ export type Database = {
         Args: { p_categoria: number }
         Returns: number
       }
+      deshacer_inicio: {
+        Args: { p_id: number }
+        Returns: {
+          cancha_id: number | null
+          categoria_id: number
+          created_at: string
+          equipo_local_id: number | null
+          equipo_visitante_id: number | null
+          estado: string
+          etiqueta: string | null
+          fase: string
+          fin_primer_tiempo: string | null
+          fin_real: string | null
+          goles_local: number
+          goles_visitante: number
+          grupo_id: number | null
+          hora_estimada: string | null
+          hora_programada: string | null
+          id: number
+          inicio_real: string | null
+          inicio_segundo_tiempo: string | null
+          penales_local: number | null
+          penales_visitante: number | null
+          periodo: string | null
+          ref_local: string | null
+          ref_visitante: string | null
+          ronda: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "partidos"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       iniciar_partido: {
         Args: { p_id: number }
         Returns: {

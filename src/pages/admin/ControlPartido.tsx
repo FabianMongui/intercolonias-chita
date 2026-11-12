@@ -299,7 +299,7 @@ export default function ControlPartido() {
                 onClick={() => {
                   setConfirmacion({
                     titulo: '¿Reiniciar el partido?',
-                    descripcion: `Se borra el marcador${goles.length === 1 ? ' y el gol registrado' : goles.length > 1 ? ` y los ${String(goles.length)} goles registrados` : ''}, y el partido vuelve a quedar sin iniciar. Cuando estén listos, toca "Iniciar partido" de nuevo.`,
+                    descripcion: `Se borra el marcador${goles.length === 1 ? ' y el gol registrado' : goles.length > 1 ? ` y los ${String(goles.length)} goles registrados` : ''}${goles.length > 0 ? ',' : ''} y el partido vuelve a quedar sin iniciar. Cuando estén listos, toca "Iniciar partido" de nuevo.`,
                     boton: 'Reiniciar partido',
                     accion: { tipo: 'deshacer' },
                     peligro: true,

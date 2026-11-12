@@ -11,9 +11,9 @@ function Marco({ children }: { children: ReactNode }) {
   return (
     <>
       <EncabezadoApp />
-      <main className="mx-auto max-w-screen-lg px-4 pt-6 pb-10">{children}</main>
-      {/* Crédito discreto al final; pb extra en móvil para que la barra inferior no lo tape */}
-      <footer className="mx-auto max-w-screen-lg px-4 pb-[calc(5rem+env(safe-area-inset-bottom))] text-center text-xs text-muted-foreground md:pb-6">
+      <main className="mx-auto max-w-screen-lg px-4 pt-6 pb-24 md:pb-10">{children}</main>
+      {/* Crédito discreto al final en escritorio; en el celular va dentro de la barra inferior */}
+      <footer className="mx-auto hidden max-w-screen-lg px-4 pb-6 text-center text-xs text-muted-foreground md:block">
         Desarrollado por Ing. Fabian Mongui
       </footer>
       <NavInferior />

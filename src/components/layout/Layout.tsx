@@ -11,8 +11,11 @@ function Marco({ children }: { children: ReactNode }) {
   return (
     <>
       <EncabezadoApp />
-      {/* pb extra en móvil para que la barra inferior no tape el contenido */}
-      <main className="mx-auto max-w-screen-lg px-4 pt-6 pb-24 md:pb-10">{children}</main>
+      <main className="mx-auto max-w-screen-lg px-4 pt-6 pb-10">{children}</main>
+      {/* Crédito discreto al final; pb extra en móvil para que la barra inferior no lo tape */}
+      <footer className="mx-auto max-w-screen-lg px-4 pb-[calc(5rem+env(safe-area-inset-bottom))] text-center text-xs text-muted-foreground md:pb-6">
+        Desarrollado por Ing. Fabian Mongui
+      </footer>
       <NavInferior />
       <AvisoGol />
       <Toaster />

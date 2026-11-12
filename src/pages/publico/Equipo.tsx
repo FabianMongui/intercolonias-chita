@@ -65,7 +65,7 @@ export default function Equipo() {
           {/* Antes de jugar, el orden es solo el desempate: no se muestra la posición. */}
           {fila?.posicion != null && (fila.pj ?? 0) > 0 && (
             <p className="font-semibold">
-              {[`${String(fila.posicion)}°${fila.grupo ? ` del Grupo ${fila.grupo}` : ''}`, `${String(fila.puntos ?? 0)} pts`].join(' · ')}
+              {[`${String(fila.posicion)}°${fila.grupo ? ` del Grupo ${fila.grupo}` : ''}`, `${String(fila.puntos ?? 0)} pts`, fila.en_juego ? 'en vivo' : null].filter(Boolean).join(' · ')}
             </p>
           )}
           {equipo.club && (

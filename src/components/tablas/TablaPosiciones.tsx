@@ -5,7 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import type { Database } from '@/types/database'
 
-export type PosicionRow = Database['public']['Views']['posiciones']['Row']
+export type PosicionRow = Database['public']['Views']['posiciones_en_vivo']['Row']
 
 interface TablaPosicionesProps {
   /** Nombre del grupo tal cual viene de la vista ("A"); se muestra "Grupo A". */
@@ -103,11 +103,17 @@ function Fila({ fila }: { fila: PosicionRow }) {
   return (
     <>
       <tr className={cn('border-b last:border-b-0', abierta && 'border-b-0 max-md:bg-muted/60')}>
-        <td className={cn(TD, 'font-semibold')}>{fila.posicion ?? '–'}</td>
+        <td className={cn(TD, 'font-semibold whitespace-nowrap')}>
+          {fila.posicion ?? '–'}
+          <Movimiento fila={fila} />
+        </td>
         <th scope="row" className="px-1 py-1 text-left font-semibold">
           <span className="flex min-h-11 items-center gap-2">
             <Escudo nombre={nombre} path={fila.escudo_path} tamano="sm" />
             <span className="min-w-0 leading-tight [overflow-wrap:anywhere]">{nombre}</span>
+            {fila.en_juego && (
+              <span className="size-2 shrink-0 rounded-full bg-live" role="img" aria-label="Jugando ahora" />
+            )}
           </span>
         </th>
         <td className={TD}>{n(fila.pj)}</td>
@@ -178,5 +184,18 @@ export function TablaPosicionesSkeleton({ filas = 3 }: { filas?: number }) {
         </div>
       ))}
     </div>
+  )
+}
+
+/** ▲/▼ mientras el equipo juega: compara con su posición oficial (sin el partido en curso). Sin número. */
+function Movimiento({ fila }: { fila: PosicionRow }) {
+  if (!fila.en_juego || fila.posicion == null || fila.posicion_oficial == null || fila.posicion === fila.posicion_oficial) {
+    return null
+  }
+  const sube = fila.posicion < fila.posicion_oficial
+  return (
+    <span className={cn('ml-0.5 text-xs', sube ? 'text-primary' : 'text-destructive')} role="img" aria-label={sube ? 'Sube' : 'Baja'}>
+      {sube ? '▲' : '▼'}
+    </span>
   )
 }

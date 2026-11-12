@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCategoria } from '@/hooks/useCategoria'
 import { usePartidosTorneo } from '@/hooks/usePartidosTorneo'
+import { IndicadorEnVivo } from '@/components/partido/IndicadorEnVivo'
 import { useGoleadores, usePosiciones } from '@/hooks/useTablas'
 import { agrupar } from '@/lib/agrupar'
 
@@ -58,6 +59,7 @@ export default function Tablas() {
           <Vacio>Esta categoría aún no tiene grupos armados.</Vacio>
         ) : (
           <div className="grid gap-4">
+            {posicionesQ.data.some((f) => f.en_juego) && <IndicadorEnVivo className="justify-self-start" />}
             {agrupar(posicionesQ.data, (f) => f.grupo ?? '?').map(([grupo, filas]) => (
               <TablaPosiciones key={grupo} grupo={grupo} filas={filas} />
             ))}

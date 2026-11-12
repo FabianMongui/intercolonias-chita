@@ -1,13 +1,17 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 
-/** Vista `posiciones`: la base ya calcula y ordena (`posicion`) con los criterios de desempate. */
+/**
+ * Vista `posiciones_en_vivo`: como la oficial (la base calcula y ordena con los desempates), pero suma los
+ * partidos en juego con su marcador actual y trae `en_juego` y `posicion_oficial` (para las flechas).
+ * La oficial (`posiciones`, solo finalizados) es la que usa la base para definir clasificados.
+ */
 export function usePosiciones(categoriaId: number | undefined) {
   return useQuery({
     queryKey: ['posiciones', categoriaId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('posiciones')
+        .from('posiciones_en_vivo')
         .select('*')
         .eq('categoria_id', categoriaId ?? 0)
         .order('grupo')

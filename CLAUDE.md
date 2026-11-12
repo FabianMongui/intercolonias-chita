@@ -6,8 +6,8 @@ resultados en vivo, tablas, llaves, goleadores, y panel de administración desde
 **Lee primero `docs/ESPECIFICACION.md`.** Es la fuente de verdad del proyecto.
 
 ## Estado
-- **Fases 0 a 5 cerradas** (PR #1 a #6): parte pública con tiempo real, panel del admin de cancha, configuración del super admin, fixture/horarios/agenda y usuarios en
-  `inter-colonias.web.app`. Del prototipo viejo solo quedan los logos en `public/assets/`.
+- **Fases 0 a 7 cerradas** (PR #1 a #8): parte pública con tiempo real, panel del admin de cancha, configuración del super admin, fixture/horarios/agenda, usuarios, aviso de gol, clubes, historial y crédito del autor en
+  `inter-colonias.web.app`. **Fase 8** (PR #9): tablas en vivo, pantalla En vivo compacta, llaves sin semifinales, "Reiniciar partido" y validaciones al iniciar (migraciones 23 a 25). Del prototipo viejo solo quedan los logos en `public/assets/`.
 - La **base de datos ya está construida y probada** en Supabase (proyecto `database-colonias`,
   ref `kewjmzqiuggpdodnzbvp`): tablas, RLS, vistas, funciones RPC, Realtime y Storage. No rediseñarla;
   extenderla solo con migraciones nuevas si hace falta.

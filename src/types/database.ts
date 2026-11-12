@@ -714,6 +714,43 @@ export type Database = {
           },
         ]
       }
+      posiciones_en_vivo: {
+        Row: {
+          categoria_id: number | null
+          dg: number | null
+          en_juego: boolean | null
+          equipo: string | null
+          equipo_id: number | null
+          escudo_path: string | null
+          gc: number | null
+          gf: number | null
+          grupo: string | null
+          grupo_id: number | null
+          pe: number | null
+          pg: number | null
+          pj: number | null
+          posicion: number | null
+          posicion_oficial: number | null
+          pp: number | null
+          puntos: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipos_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipos_grupo_id_fkey"
+            columns: ["grupo_id"]
+            isOneToOne: false
+            referencedRelation: "grupos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       titulos_por_club: {
         Row: {
           club_id: number | null

@@ -69,6 +69,7 @@ exportarlas a `supabase/migrations/` (con el MCP de Supabase o `supabase db pull
 
 ### 3.2 Vistas (lectura pública)
 - `posiciones`: por equipo → categoria_id, grupo_id, grupo, equipo_id, equipo, escudo_path, pj, pg, pe, pp, gf, gc, dg, puntos, **posicion** (ya ordenada).
+- `posiciones_en_vivo` (migración 23): mismas columnas y desempate que `posiciones`, pero cuenta también los partidos de grupos `en_vivo` con su marcador actual; agrega `en_juego` (tiene partido de grupos en vivo) y `posicion_oficial` (posición en `posiciones`, para flechas de subida/bajada). `posiciones` sigue siendo la oficial (solo finalizados) y es la que usa `resolver_ref`.
 - `goleadores`: por jugador → categoria_id, jugador_id, jugador, numero, equipo_id, equipo, escudo_path, goles (sin autogoles).
 - `palmares` (migración 21): campeón y subcampeón por edición → origen (`app`/`registro`), anio, tipo_torneo, categoria, torneo_id?, campeon_club_id?, campeon_nombre, campeon_escudo_path, subcampeon_club_id?, subcampeon_nombre, subcampeon_escudo_path, marcador_final.
   `app`: cada partido `fase = 'final'` finalizado de un torneo con `cuenta_en_historial = true` (migración 22), con `ganador`/`perdedor` (incluye penales); año = año de `torneos.fecha_inicio`; marcador desde el campeón (`2-1` o `1-1 (4-3 pen.)`); nombre/escudo del club si el equipo tiene club, si no los del equipo (club_id null).

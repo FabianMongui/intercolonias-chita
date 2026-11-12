@@ -30,12 +30,15 @@ import { usePartidosTorneo } from '@/hooks/usePartidosTorneo'
 import { textoFasePartido } from '@/lib/fases'
 import { textoReferencia } from '@/lib/referencias'
 import { ahoraServidor, formatearHora } from '@/lib/time'
+import { useAhoraServidor } from '@/hooks/useAhoraServidor'
 import { cn } from '@/lib/utils'
 
 type Lado = 'local' | 'visitante'
 
 /** Iniciar con más de esta anticipación pide confirmar (no bloquea: los horarios se corren mucho). */
 const MARGEN_TEMPRANO_MS = 60 * 60_000
+/** Ventana del admin de cancha para deshacer un inicio (igual que en deshacer_inicio, migración 24). */
+const LIMITE_DESHACER_MS = 10 * 60_000
 
 interface Confirmacion {
   titulo: string
@@ -55,6 +58,14 @@ export default function ControlPartido() {
   const perfil = useOutletContext<Perfil | undefined>()
   const esSuperAdmin = perfil?.rol === 'super_admin'
   const p = partidoQ.data
+  // El admin de cancha solo puede deshacer en los primeros 10 minutos del 1T (la base lo valida igual):
+  // el botón desaparece al cumplirse ese tiempo. Si aún no se conoce la hora del servidor se muestra a propósito:
+  // la base rechaza igual con un mensaje claro.
+  const vigilarDeshacer = !esSuperAdmin && p?.estado === 'en_vivo' && p.periodo === '1T'
+  const ahoraMs = useAhoraServidor(desfaseMs, 5_000, vigilarDeshacer)
+  const adminPuedeDeshacer =
+    p?.periodo === '1T' &&
+    (ahoraMs === undefined || p.inicio_real === null || ahoraMs - Date.parse(p.inicio_real) <= LIMITE_DESHACER_MS)
   const jugadoresQ = useJugadoresPartido(p?.equipo_local_id ?? null, p?.equipo_visitante_id ?? null)
   const [hojaGol, setHojaGol] = useState<Lado | null>(null)
   // Cada apertura monta la hoja de nuevo (sin autogol ni dorsal de la vez anterior).
@@ -277,9 +288,9 @@ export default function ControlPartido() {
                 Finalizar partido
               </BotonAccion>
             )}
-            {/* Salvavidas para un partido iniciado por error. El admin de cancha solo lo ve en el 1T
-                (la base además limita a 10 minutos); el super admin, mientras siga en juego. */}
-            {(esSuperAdmin || p.periodo === '1T') && (
+            {/* Salvavidas para un partido iniciado por error. El admin de cancha solo lo ve los primeros
+                10 minutos del 1T (la base también lo valida); el super admin, mientras siga en juego. */}
+            {(esSuperAdmin || adminPuedeDeshacer) && (
               <Button
                 variant="ghost"
                 className="min-h-11 self-center text-destructive hover:bg-destructive hover:text-destructive-foreground"

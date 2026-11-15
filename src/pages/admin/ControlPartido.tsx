@@ -105,6 +105,32 @@ export default function ControlPartido() {
   const ultimoGol = [...goles].sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))[0]
   const esEliminatoria = p.fase !== 'grupos'
   const empatado = p.goles_local === p.goles_visitante
+  // Corregir marcador: el super admin puede agregar o anular goles de un partido finalizado
+  // (la base lo restringe a él y recalcula las llaves pendientes, migración 26).
+  const corrigiendo = esSuperAdmin && p.estado === 'finalizado'
+  const puedeTocarGoles = enVivo || corrigiendo
+  const botonesGol = (
+    <div className="grid grid-cols-2 gap-3">
+      {(['local', 'visitante'] as const).map((lado) => (
+        <Button
+          key={lado}
+          variant="accent"
+          disabled={ocupado}
+          className="h-auto min-h-16 flex-col gap-0 px-2 py-1.5 text-base"
+          onClick={() => {
+            setAperturasHoja((n) => n + 1)
+            setLadoHoja(lado)
+            setHojaGol(lado)
+          }}
+        >
+          <span className="flex items-center gap-1 font-display text-2xl leading-none">
+            <Plus aria-hidden className="size-5" /> Gol
+          </span>
+          <span className="max-w-full truncate text-sm">{nombre(lado)}</span>
+        </Button>
+      ))}
+    </div>
+  )
 
   const pedirFinalizar = () => {
     if (esEliminatoria && empatado) {
@@ -187,6 +213,21 @@ export default function ControlPartido() {
       </section>
 
       <section aria-label="Acciones" className="flex flex-col gap-3">
+        {corrigiendo && (
+          <div className="flex flex-col gap-3 rounded-lg border border-gold bg-surface p-3">
+            <h2 className="font-sans text-base font-bold">Corregir marcador</h2>
+            <p className="text-sm text-muted-foreground">
+              Agrega los goles que faltan o anula los que sobran en la lista de goles. La tabla y las llaves que aún no se
+              han jugado se actualizan solas.
+            </p>
+            {botonesGol}
+            {esEliminatoria && empatado && (
+              <p role="alert" className="text-sm font-semibold text-destructive">
+                Quedó empatado: un partido de eliminación necesita un ganador. Revisa el marcador.
+              </p>
+            )}
+          </div>
+        )}
         {p.estado === 'programado' &&
           (p.local && p.visitante ? (
             <BotonAccion
@@ -230,26 +271,7 @@ export default function ControlPartido() {
 
         {enVivo && (
           <>
-            <div className="grid grid-cols-2 gap-3">
-              {(['local', 'visitante'] as const).map((lado) => (
-                <Button
-                  key={lado}
-                  variant="accent"
-                  disabled={ocupado}
-                  className="h-auto min-h-16 flex-col gap-0 px-2 py-1.5 text-base"
-                  onClick={() => {
-                    setAperturasHoja((n) => n + 1)
-                    setLadoHoja(lado)
-                    setHojaGol(lado)
-                  }}
-                >
-                  <span className="flex items-center gap-1 font-display text-2xl leading-none">
-                    <Plus aria-hidden className="size-5" /> Gol
-                  </span>
-                  <span className="max-w-full truncate text-sm">{nombre(lado)}</span>
-                </Button>
-              ))}
-            </div>
+            {botonesGol}
             {p.periodo === '1T' && (
               <BotonAccion
                 variante="outline"
@@ -353,7 +375,7 @@ export default function ControlPartido() {
                       <span className="truncate font-semibold">{nombre(lado)}</span>
                       <span className="truncate text-sm text-muted-foreground">{describirGol(e, false)}</span>
                     </span>
-                    {enVivo && (
+                    {puedeTocarGoles && (
                       <Button
                         variant="ghost"
                         size="icon"
@@ -570,7 +592,11 @@ function HojaGol({
       <SheetContent>
         <SheetHeader>
           <SheetTitle>{`Gol de ${nombre(lado)}`}</SheetTitle>
-          <SheetDescription>Toca quién lo hizo. El minuto lo pone el servidor.</SheetDescription>
+          <SheetDescription>
+            {partido.estado === 'finalizado'
+              ? 'Toca quién lo hizo. Es una corrección: el gol queda sin minuto.'
+              : 'Toca quién lo hizo. El minuto lo pone el servidor.'}
+          </SheetDescription>
         </SheetHeader>
         <div className="flex flex-col gap-3 px-4">
           <div className="grid grid-cols-2 gap-3">
